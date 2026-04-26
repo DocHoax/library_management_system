@@ -1,0 +1,397 @@
+/* ==============================================
+   Dashboard Shared Styles
+   ============================================== */
+
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-5);
+}
+
+.stat-card {
+  animation: fadeInUp 0.5s ease-out backwards;
+}
+
+.stat-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-5);
+}
+
+.stat-card__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-card__icon--primary { background: var(--primary-fixed); color: var(--primary-container); }
+.stat-card__icon--secondary { background: #dbeafe; color: var(--secondary); }
+.stat-card__icon--error { background: var(--error-container); color: var(--error); }
+.stat-card__icon--success { background: var(--success-container); color: var(--success); }
+
+.stat-card__trend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-label-md);
+  font-weight: 600;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+}
+
+.stat-card__trend--up { color: var(--success); background: var(--success-container); }
+.stat-card__trend--down { color: var(--error); background: var(--error-container); }
+
+.stat-card__value {
+  font-family: var(--font-headline);
+  font-size: var(--text-display-sm);
+  font-weight: 800;
+  color: var(--on-surface);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-1);
+}
+
+.stat-card__label {
+  font-size: var(--text-label-lg);
+  color: var(--on-surface-variant);
+  font-weight: 500;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-5);
+}
+
+.dashboard-card--wide {
+  grid-column: span 1;
+}
+
+.dashboard-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-6);
+}
+
+.dashboard-card__header h3 {
+  font-size: var(--text-title-md);
+  font-weight: 700;
+}
+
+.dashboard-card__action {
+  font-size: var(--text-label-lg);
+  color: var(--secondary);
+  font-weight: 600;
+}
+
+/* Transaction List */
+.transaction-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.transaction-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--surface-container-low);
+  transition: background var(--transition-fast);
+}
+
+.transaction-row:hover {
+  background: var(--surface-container);
+}
+
+.transaction-row__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.transaction-row__book {
+  font-size: var(--text-body-md);
+  font-weight: 600;
+  color: var(--on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.transaction-row__student {
+  font-size: var(--text-label-md);
+  color: var(--on-surface-variant);
+}
+
+.transaction-row__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+.transaction-row__date {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-label-md);
+  color: var(--outline);
+}
+
+/* Popular Books */
+.popular-books-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.popular-book-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+}
+
+.popular-book-item__rank {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: var(--surface-container-high);
+  color: var(--on-surface-variant);
+  font-size: var(--text-label-md);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.popular-book-item__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.popular-book-item__title {
+  display: block;
+  font-size: var(--text-body-sm);
+  font-weight: 600;
+  color: var(--on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.popular-book-item__author {
+  font-size: var(--text-label-sm);
+  color: var(--on-surface-variant);
+}
+
+.popular-book-item__count {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-label-md);
+  font-weight: 600;
+  color: var(--secondary);
+}
+
+/* Quick Stats */
+.quick-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-5);
+}
+
+.quick-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-6);
+}
+
+.quick-stat__label {
+  font-size: var(--text-label-lg);
+  color: var(--on-surface-variant);
+  margin-bottom: var(--space-2);
+}
+
+.quick-stat__value {
+  font-family: var(--font-headline);
+  font-size: var(--text-headline-md);
+  font-weight: 800;
+  color: var(--on-surface);
+}
+
+.quick-stat__value--warning { color: var(--warning); }
+.quick-stat__value--error { color: var(--error); }
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .quick-stats { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .quick-stats { grid-template-columns: 1fr; }
+}
+
+/* ── Welcome Banner ── */
+.welcome-banner {
+  background: var(--primary-gradient);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8) var(--space-10);
+  color: var(--on-primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.welcome-banner::before {
+  content: '';
+  position: absolute;
+  right: -50px;
+  top: -50px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.welcome-banner__text h2 {
+  font-size: var(--text-headline-md);
+  color: var(--on-primary);
+  margin-bottom: var(--space-2);
+}
+
+.welcome-banner__text p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: var(--text-body-md);
+}
+
+/* ── Checkout Queue ── */
+.checkout-queue {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.queue-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface-container-low);
+  border-radius: var(--radius-lg);
+  transition: background var(--transition-fast);
+}
+
+.queue-item:hover {
+  background: var(--surface-container);
+}
+
+.queue-item__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.queue-item__student {
+  font-weight: 600;
+  font-size: var(--text-body-md);
+}
+
+.queue-item__book {
+  font-size: var(--text-label-md);
+  color: var(--on-surface-variant);
+}
+
+.queue-item__actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* ── Borrowed Books List (Student) ── */
+.borrowed-books {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.borrowed-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--surface-container-low);
+}
+
+.borrowed-item__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.borrowed-item__title {
+  font-weight: 600;
+  font-size: var(--text-body-md);
+}
+
+.borrowed-item__author {
+  font-size: var(--text-label-md);
+  color: var(--on-surface-variant);
+}
+
+.borrowed-item__due {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.due-indicator {
+  font-size: var(--text-body-sm);
+  font-weight: 600;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+}
+
+.due-indicator--ok { color: var(--success); background: var(--success-container); }
+.due-indicator--soon { color: var(--warning); background: var(--warning-container); }
+.due-indicator--overdue { color: var(--error); background: var(--error-container); }
+
+/* ── Circular Progress ── */
+.circular-progress {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.circular-progress__text {
+  position: absolute;
+  font-family: var(--font-headline);
+  font-weight: 800;
+  font-size: var(--text-title-md);
+  color: var(--on-surface);
+}
