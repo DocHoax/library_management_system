@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { reportsApi } from '../../services/api';
 import { BookOpen, Users, AlertTriangle, DollarSign, TrendingUp, Calendar, ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import './Dashboard.css';
+import '../Dashboard.css';
 
 export default function AdminDashboard() {
   const [data, setData] = useState(null);
