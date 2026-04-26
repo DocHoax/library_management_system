@@ -1,0 +1,223 @@
+/* ==============================================
+   Book Catalog Styles
+   ============================================== */
+
+.catalog-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.catalog-hero {
+  text-align: center;
+  padding: var(--space-6) 0;
+}
+
+.catalog-hero h1 {
+  font-size: var(--text-display-sm);
+  margin-bottom: var(--space-2);
+}
+
+.catalog-hero p {
+  font-size: var(--text-body-lg);
+  color: var(--on-surface-variant);
+  margin-bottom: var(--space-6);
+}
+
+.catalog-search-bar {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-5);
+}
+
+.catalog-search-bar input {
+  font-size: var(--text-body-md);
+}
+
+.catalog-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: var(--space-8);
+}
+
+/* Filters */
+.catalog-filters {
+  position: sticky;
+  top: calc(var(--topbar-height) + var(--space-8));
+  align-self: start;
+}
+
+.catalog-filters__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+  color: var(--on-surface);
+}
+
+.catalog-filter-group {
+  margin-bottom: var(--space-6);
+}
+
+.catalog-filter-group h5 {
+  font-size: var(--text-label-lg);
+  color: var(--on-surface-variant);
+  margin-bottom: var(--space-3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.catalog-filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.catalog-filter-chip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: var(--radius-lg);
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: var(--text-body-sm);
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+}
+
+.catalog-filter-chip:hover {
+  background: var(--surface-container);
+}
+
+.catalog-filter-chip--active {
+  background: var(--primary-fixed);
+  color: var(--primary-container);
+  font-weight: 600;
+}
+
+.catalog-filter-chip__count {
+  font-size: var(--text-label-sm);
+  opacity: 0.6;
+}
+
+.catalog-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-body-sm);
+  color: var(--on-surface-variant);
+  cursor: pointer;
+}
+
+.catalog-toggle input {
+  accent-color: var(--primary-container);
+  width: 16px;
+  height: 16px;
+}
+
+/* Book Grid */
+.catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-5);
+}
+
+.book-card {
+  cursor: pointer;
+  padding: 0;
+  overflow: hidden;
+  transition: all var(--transition-normal);
+}
+
+.book-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.book-card__cover {
+  height: 180px;
+  background: var(--primary-gradient);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  color: var(--on-primary);
+  position: relative;
+}
+
+.book-card__category {
+  position: absolute;
+  bottom: var(--space-3);
+  right: var(--space-3);
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(8px);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--text-label-sm);
+  font-weight: 500;
+}
+
+.book-card__info {
+  padding: var(--space-5);
+}
+
+.book-card__title {
+  font-size: var(--text-title-sm);
+  font-weight: 700;
+  color: var(--on-surface);
+  margin-bottom: var(--space-1);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.book-card__author {
+  font-size: var(--text-body-sm);
+  color: var(--on-surface-variant);
+  margin-bottom: var(--space-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.book-card__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.book-card__year {
+  font-size: var(--text-label-md);
+  color: var(--outline);
+}
+
+/* Pagination */
+.catalog-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-4);
+  padding-top: var(--space-6);
+}
+
+.catalog-pagination__info {
+  font-size: var(--text-body-sm);
+  color: var(--on-surface-variant);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .catalog-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .catalog-filters {
+    position: static;
+  }
+}
