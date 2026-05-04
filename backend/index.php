@@ -39,6 +39,7 @@ $id = $segments[2] ?? '';
 match ($resource) {
     'auth' => require __DIR__ . '/api/auth/handler.php',
     'books' => require __DIR__ . '/api/books/handler.php',
+    'reservations' => require __DIR__ . '/api/reservations/handler.php',
     'users' => require __DIR__ . '/api/users/handler.php',
     'transactions' => require __DIR__ . '/api/transactions/handler.php',
     'fines' => require __DIR__ . '/api/fines/handler.php',

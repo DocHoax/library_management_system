@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { booksApi } from '../../services/api';
+import { booksApi, reservationsApi, transactionsApi } from '../../services/api';
 import { ArrowLeft, BookOpen, Calendar, Globe, Hash, Layers, BookCopy } from 'lucide-react';
 
 export default function BookDetail() {
@@ -10,10 +10,49 @@ export default function BookDetail() {
   const navigate = useNavigate();
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState({ borrow: false, reserve: false });
+
+  const loadBook = async () => {
+    setLoading(true);
+    try {
+      const data = await booksApi.get(id);
+      setBook(data.book);
+    } catch (error) {
+      console.error(error);
+      setBook(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    booksApi.get(id).then(data => setBook(data.book)).catch(console.error).finally(() => setLoading(false));
+    loadBook();
   }, [id]);
+
+  const handleBorrow = async () => {
+    setActionLoading(prev => ({ ...prev, borrow: true }));
+    try {
+      const result = await transactionsApi.checkout({ book_id: book.id });
+      window.alert(`Book checked out successfully. Due on ${new Date(result.due_date).toLocaleDateString('en-NG')}.`);
+      await loadBook();
+    } catch (error) {
+      window.alert(error.message || 'Unable to check out this book.');
+    } finally {
+      setActionLoading(prev => ({ ...prev, borrow: false }));
+    }
+  };
+
+  const handleReserve = async () => {
+    setActionLoading(prev => ({ ...prev, reserve: true }));
+    try {
+      const result = await reservationsApi.create(book.id);
+      window.alert(`Book reserved successfully. Reservation expires on ${new Date(result.expiry_date).toLocaleDateString('en-NG')}.`);
+    } catch (error) {
+      window.alert(error.message || 'Unable to reserve this book.');
+    } finally {
+      setActionLoading(prev => ({ ...prev, reserve: false }));
+    }
+  };
 
   if (loading) return <div style={{ padding: 'var(--space-8)' }}><div className="skeleton" style={{ height: 400, borderRadius: 12 }} /></div>;
   if (!book) return <div className="empty-state"><h3>Book not found</h3></div>;
@@ -55,9 +94,13 @@ export default function BookDetail() {
           {/* Actions */}
           <div style={{ display: 'flex', gap: 'var(--space-3)', marginBottom: 'var(--space-8)' }}>
             {book.available_copies > 0 && user?.role === 'student' && (
-              <button className="btn btn--primary">Borrow This Book</button>
+              <button className="btn btn--primary" onClick={handleBorrow} disabled={actionLoading.borrow}>
+                {actionLoading.borrow ? 'Borrowing...' : 'Borrow This Book'}
+              </button>
             )}
-            <button className="btn btn--ghost">Reserve</button>
+            <button className="btn btn--ghost" onClick={handleReserve} disabled={actionLoading.reserve}>
+              {actionLoading.reserve ? 'Reserving...' : 'Reserve'}
+            </button>
           </div>
 
           {/* Description */}

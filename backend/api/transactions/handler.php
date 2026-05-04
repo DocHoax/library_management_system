@@ -124,14 +124,28 @@ function getTransaction(PDO $db, int $id): void {
 }
 
 function checkoutBook(PDO $db, array $input): void {
-    $authUser = requireAuth(['admin', 'librarian']);
-    
+    $authUser = requireAuth();
+
     $userId = (int)($input['user_id'] ?? 0);
     $bookId = (int)($input['book_id'] ?? 0);
     $loanDays = (int)($input['loan_days'] ?? LOAN_PERIOD_DAYS);
 
-    if (!$userId || !$bookId) {
+    if ($authUser['role'] === 'student') {
+        $userId = (int)$authUser['user_id'];
+    } elseif (!$userId) {
         errorResponse('User ID and Book ID are required');
+    }
+
+    if (!$bookId) {
+        errorResponse('Book ID is required');
+    }
+
+    if ($authUser['role'] === 'student' && $userId !== (int)$authUser['user_id']) {
+        errorResponse('Students can only check out books for their own account', 403);
+    }
+
+    if (!in_array($authUser['role'], ['admin', 'librarian', 'student'], true)) {
+        errorResponse('Insufficient permissions', 403);
     }
 
     // Check student exists and is active

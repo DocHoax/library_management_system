@@ -99,6 +99,11 @@ export const transactionsApi = {
   return: (data) => ApiService.post('transactions/return', data),
 };
 
+// Reservations API
+export const reservationsApi = {
+  create: (bookId) => ApiService.post('reservations', { book_id: bookId }),
+};
+
 // Fines API
 export const finesApi = {
   list: (params = {}) => ApiService.get('fines', params),

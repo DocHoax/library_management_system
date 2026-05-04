@@ -10,6 +10,7 @@ export default function UserManagement() {
   const [roleFilter, setRoleFilter] = useState('');
   const [pagination, setPagination] = useState({ page: 1, total: 0, total_pages: 1 });
   const [showModal, setShowModal] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({ full_name: '', email: '', password: '', role: 'student', matric_number: '', department: '', phone: '' });
 
   const fetchUsers = async (page = 1) => {
@@ -26,12 +27,53 @@ export default function UserManagement() {
 
   const handleSearch = (e) => { e.preventDefault(); fetchUsers(1); };
 
-  const handleCreate = async (e) => {
+  const resetForm = () => {
+    setEditingUser(null);
+    setFormData({ full_name: '', email: '', password: '', role: 'student', matric_number: '', department: '', phone: '' });
+  };
+
+  const handleOpenCreate = () => {
+    resetForm();
+    setShowModal(true);
+  };
+
+  const handleEdit = (user) => {
+    setEditingUser(user);
+    setFormData({
+      full_name: user.full_name || '',
+      email: user.email || '',
+      password: '',
+      role: user.role || 'student',
+      matric_number: user.matric_number || '',
+      department: user.department || '',
+      phone: user.phone || '',
+    });
+    setShowModal(true);
+  };
+
+  const handleDelete = async (user) => {
+    if (!window.confirm(`Deactivate ${user.full_name}?`)) return;
+
+    try {
+      await usersApi.delete(user.id);
+      fetchUsers(pagination.page);
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await usersApi.create(formData);
+      if (editingUser) {
+        const payload = { ...formData };
+        if (!payload.password) delete payload.password;
+        await usersApi.update(editingUser.id, payload);
+      } else {
+        await usersApi.create(formData);
+      }
       setShowModal(false);
-      setFormData({ full_name: '', email: '', password: '', role: 'student', matric_number: '', department: '', phone: '' });
+      resetForm();
       fetchUsers(1);
     } catch (err) { alert(err.message); }
   };
@@ -45,7 +87,7 @@ export default function UserManagement() {
           <h2>User Management</h2>
           <p>{pagination.total} total users</p>
         </div>
-        <button className="btn btn--primary" onClick={() => setShowModal(true)}>
+        <button className="btn btn--primary" onClick={handleOpenCreate}>
           <UserPlus size={18} /> Add User
         </button>
       </div>
@@ -94,8 +136,8 @@ export default function UserManagement() {
                 </td>
                 <td style={{ padding: 'var(--space-4) var(--space-5)' }}>
                   <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-                    <button className="btn btn--ghost btn--sm" title="Edit"><Edit size={14} /></button>
-                    <button className="btn btn--ghost btn--sm" title="Delete" style={{ color: 'var(--error)' }}><Trash2 size={14} /></button>
+                    <button className="btn btn--ghost btn--sm" title="Edit" onClick={() => handleEdit(u)}><Edit size={14} /></button>
+                    <button className="btn btn--ghost btn--sm" title="Delete" style={{ color: 'var(--error)' }} onClick={() => handleDelete(u)}><Trash2 size={14} /></button>
                   </div>
                 </td>
               </tr>
@@ -110,17 +152,17 @@ export default function UserManagement() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={() => setShowModal(false)}>
           <div className="card animate-fade-in-up" style={{ maxWidth: 480, width: '90%' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-6)' }}>
-              <h3>Add New User</h3>
-              <button className="btn btn--ghost btn--sm" onClick={() => setShowModal(false)}><X size={18} /></button>
+              <h3>{editingUser ? 'Edit User' : 'Add New User'}</h3>
+              <button className="btn btn--ghost btn--sm" onClick={() => { setShowModal(false); resetForm(); }}><X size={18} /></button>
             </div>
-            <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
               <div className="input-group"><label>Full Name *</label><input className="input-field" required value={formData.full_name} onChange={e => setFormData({...formData, full_name: e.target.value})} /></div>
               <div className="input-group"><label>Email *</label><input className="input-field" type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} /></div>
-              <div className="input-group"><label>Password *</label><input className="input-field" type="password" required minLength={6} value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} /></div>
+              <div className="input-group"><label>Password {editingUser ? '(leave blank to keep current)' : '*'}</label><input className="input-field" type="password" required={!editingUser} minLength={editingUser ? 0 : 6} value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} /></div>
               <div className="input-group"><label>Role</label><select className="input-field" value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})}><option value="student">Student</option><option value="librarian">Librarian</option><option value="admin">Admin</option></select></div>
               <div className="input-group"><label>Matric Number</label><input className="input-field" value={formData.matric_number} onChange={e => setFormData({...formData, matric_number: e.target.value})} /></div>
               <div className="input-group"><label>Department</label><input className="input-field" value={formData.department} onChange={e => setFormData({...formData, department: e.target.value})} /></div>
-              <button type="submit" className="btn btn--primary" style={{ marginTop: 'var(--space-2)' }}>Create User</button>
+              <button type="submit" className="btn btn--primary" style={{ marginTop: 'var(--space-2)' }}>{editingUser ? 'Save Changes' : 'Create User'}</button>
             </form>
           </div>
         </div>
