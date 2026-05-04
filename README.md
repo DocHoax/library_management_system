@@ -40,7 +40,21 @@ The application supports:
 npm install
 ```
 
-### 2. Create the database
+### 2. Configure the backend
+
+Copy the example environment file and adjust it for your local MySQL and CORS settings.
+
+```powershell
+Copy-Item backend/.env.example backend/.env
+```
+
+On macOS or Linux:
+
+```bash
+cp backend/.env.example backend/.env
+```
+
+### 3. Create the database
 
 Import the schema and seed data into MySQL. The default database name is `lasustech_library`.
 
@@ -49,9 +63,9 @@ mysql -u root -p < database/schema.sql
 mysql -u root -p < database/seed.sql
 ```
 
-If you use XAMPP or another local stack, make sure the MySQL credentials in `backend/config/database.php` match your environment.
+Update the values in `backend/.env` if your MySQL user, password, or host differ from the defaults.
 
-### 3. Start the backend API
+### 4. Start the backend API
 
 Run the PHP built-in server from the project root:
 
@@ -61,7 +75,7 @@ php -S 127.0.0.1:8000 -t backend backend/router.php
 
 The API is available at `http://localhost:8000/api`.
 
-### 4. Start the frontend
+### 5. Start the frontend
 
 In a second terminal, start the Vite dev server:
 
@@ -162,7 +176,7 @@ The backend routes are organized by feature and exposed under `/api`:
 
 - Frontend API calls are configured in `src/services/api.js`.
 - Vite proxies `/api` requests to `http://localhost:8000` in `vite.config.js`.
-- Database credentials, JWT settings, and business rules live in `backend/config/database.php`.
+- Backend runtime settings are loaded from `backend/.env` with defaults defined in `backend/config/database.php`.
 - The backend currently allows requests from `http://localhost:5173`.
 
 ## Authentication Flow
