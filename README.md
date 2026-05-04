@@ -110,7 +110,7 @@ The seed data includes demo users. All seeded accounts use the password `passwor
 
 ## API Modules
 
-The backend routes are organized by feature:
+The backend routes are organized by feature and exposed under `/api`:
 
 - `auth` - login, registration, and current user lookup
 - `books` - catalog and book details
@@ -119,6 +119,44 @@ The backend routes are organized by feature:
 - `fines` - fine listing and payment actions
 - `reports` - dashboard and activity analytics
 - `users` - staff and student management
+
+### Endpoint Reference
+
+- `POST /api/auth/login` - authenticate a user
+- `POST /api/auth/register` - create a student account
+- `GET /api/auth/me` - fetch the current authenticated user
+- `GET /api/books` - list books with pagination and filters
+- `GET /api/books/search` - search books by query string
+- `GET /api/books/{id}` - fetch a single book
+- `POST /api/books` - create a book
+- `PUT /api/books/{id}` - update a book
+- `DELETE /api/books/{id}` - archive a book
+- `GET /api/categories` - list categories
+- `GET /api/categories/{id}` - fetch a category
+- `POST /api/categories` - create a category
+- `GET /api/transactions` - list all transactions for staff
+- `GET /api/transactions/my` - list the logged-in user's transactions
+- `GET /api/transactions/{id}` - fetch a single transaction
+- `POST /api/transactions/checkout` - check out a book
+- `POST /api/transactions/return` - return a book
+- `GET /api/fines` - list fines for staff
+- `GET /api/fines/my` - list the logged-in user's fines
+- `POST /api/fines/pay` - mark a fine as paid
+- `POST /api/fines/waive` - waive a fine
+- `GET /api/reports/dashboard` - dashboard summary metrics
+- `GET /api/reports/analytics` - admin analytics data
+- `GET /api/reports/activity` - recent activity log
+- `GET /api/users` - list users for admin
+- `GET /api/users/{id}` - fetch a user profile
+- `POST /api/users` - create a user
+- `PUT /api/users/{id}` - update a user
+- `DELETE /api/users/{id}` - deactivate a user
+
+### Access Rules
+
+- `admin` can manage users, books, categories, fines, analytics, and reports.
+- `librarian` can manage books, checkout and return transactions, fines, and staff-facing reports.
+- `student` can browse the catalog, view personal transactions, and view personal fines.
 
 ## Configuration Notes
 
