@@ -2,31 +2,23 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { booksApi, categoriesApi } from '../../services/api';
-import { Library, Mail, Lock, Eye, EyeOff, BookOpen, Users, BarChart3, ArrowRight } from 'lucide-react';
+import { Library, Mail, Lock, Eye, EyeOff, BookOpen, ArrowRight, UserPlus } from 'lucide-react';
 import './Login.css';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [matricNumber, setMatricNumber] = useState('');
+  const [department, setDepartment] = useState('');
+  const [phone, setPhone] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [activeRole, setActiveRole] = useState('student');
+  const [mode, setMode] = useState('login');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [heroStats, setHeroStats] = useState({ books: 0, available: 0, categories: 0 });
-  const { login } = useAuth();
+  const { login, register } = useAuth();
   const navigate = useNavigate();
-
-  const roles = [
-    { id: 'student', label: 'Student', icon: BookOpen },
-    { id: 'librarian', label: 'Librarian', icon: Users },
-    { id: 'admin', label: 'Admin', icon: BarChart3 },
-  ];
-
-  const demoCredentials = {
-    admin: { email: 'admin@lasustech.edu.ng', password: 'password123' },
-    librarian: { email: 'librarian1@lasustech.edu.ng', password: 'password123' },
-    student: { email: 'student1@lasustech.edu.ng', password: 'password123' },
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,19 +26,23 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const user = await login(email, password);
+      const user = mode === 'login'
+        ? await login(email, password)
+        : await register({
+            full_name: fullName,
+            email,
+            password,
+            matric_number: matricNumber,
+            department,
+            phone,
+          });
+
       navigate(`/${user.role}`, { replace: true });
     } catch (err) {
       setError(err.message || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
-  };
-
-  const fillDemo = (role) => {
-    setActiveRole(role);
-    setEmail(demoCredentials[role].email);
-    setPassword(demoCredentials[role].password);
   };
 
   useEffect(() => {
@@ -117,30 +113,97 @@ export default function Login() {
       <div className="login-form-section">
         <div className="login-form-wrapper">
           <div className="login-form-header">
-            <h2>Welcome Back</h2>
-            <p>Sign in to your library account</p>
-          </div>
+              <h2>{mode === 'login' ? 'Welcome Back' : 'Create Account'}</h2>
+              <p>{mode === 'login' ? 'Sign in to your library account' : 'Register to start using the library system'}</p>
+            </div>
 
-          {/* Role Tabs */}
-          <div className="login-role-tabs">
-            {roles.map(role => (
+            <div className="login-mode-toggle" style={{ display: 'flex', gap: 'var(--space-2)', marginBottom: 'var(--space-6)' }}>
               <button
-                key={role.id}
-                className={`login-role-tab ${activeRole === role.id ? 'login-role-tab--active' : ''}`}
-                onClick={() => fillDemo(role.id)}
                 type="button"
+                className={`btn btn--sm ${mode === 'login' ? 'btn--primary' : 'btn--ghost'}`}
+                onClick={() => setMode('login')}
               >
-                <role.icon size={16} />
-                {role.label}
+                Sign In
               </button>
-            ))}
-          </div>
+              <button
+                type="button"
+                className={`btn btn--sm ${mode === 'register' ? 'btn--primary' : 'btn--ghost'}`}
+                onClick={() => setMode('register')}
+              >
+                <UserPlus size={16} /> Sign Up
+              </button>
+            </div>
 
           <form className="login-form" onSubmit={handleSubmit} id="login-form">
             {error && (
               <div className="login-error animate-fade-in">
                 <span>{error}</span>
               </div>
+            )}
+
+            {mode === 'register' && (
+              <>
+                <div className="input-group">
+                  <label htmlFor="full-name">Full Name</label>
+                  <div className="login-input-wrap">
+                    <input
+                      id="full-name"
+                      type="text"
+                      className="input-field login-input"
+                      placeholder="Your full name"
+                      value={fullName}
+                      onChange={e => setFullName(e.target.value)}
+                      required
+                      autoComplete="name"
+                    />
+                  </div>
+                </div>
+
+                <div className="input-group">
+                  <label htmlFor="matric-number">Matric Number</label>
+                  <div className="login-input-wrap">
+                    <input
+                      id="matric-number"
+                      type="text"
+                      className="input-field login-input"
+                      placeholder="Optional matric number"
+                      value={matricNumber}
+                      onChange={e => setMatricNumber(e.target.value)}
+                      autoComplete="off"
+                    />
+                  </div>
+                </div>
+
+                <div className="input-group">
+                  <label htmlFor="department">Department</label>
+                  <div className="login-input-wrap">
+                    <input
+                      id="department"
+                      type="text"
+                      className="input-field login-input"
+                      placeholder="Your department"
+                      value={department}
+                      onChange={e => setDepartment(e.target.value)}
+                      autoComplete="organization"
+                    />
+                  </div>
+                </div>
+
+                <div className="input-group">
+                  <label htmlFor="phone">Phone Number</label>
+                  <div className="login-input-wrap">
+                    <input
+                      id="phone"
+                      type="tel"
+                      className="input-field login-input"
+                      placeholder="Your phone number"
+                      value={phone}
+                      onChange={e => setPhone(e.target.value)}
+                      autoComplete="tel"
+                    />
+                  </div>
+                </div>
+              </>
             )}
 
             <div className="input-group">
@@ -196,22 +259,24 @@ export default function Login() {
             <button
               type="submit"
               className="btn btn--primary btn--lg login-submit"
-              disabled={loading || !email || !password}
+              disabled={loading || !email || !password || (mode === 'register' && !fullName)}
               id="login-submit-btn"
             >
               {loading ? (
                 <span className="login-spinner" />
               ) : (
                 <>
-                  Sign In
+                  {mode === 'login' ? 'Sign In' : 'Create Account'}
                   <ArrowRight size={18} />
                 </>
               )}
             </button>
           </form>
 
-          <p className="login-demo-hint">
-            Click a role tab above to auto-fill demo credentials
+          <p className="login-mode-hint">
+            {mode === 'login'
+              ? 'Need an account? Switch to Sign Up to register as a student.'
+              : 'Already have an account? Switch back to Sign In.'}
           </p>
         </div>
       </div>

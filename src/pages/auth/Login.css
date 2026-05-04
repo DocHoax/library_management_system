@@ -272,7 +272,7 @@
   to { transform: rotate(360deg); }
 }
 
-.login-demo-hint {
+.login-mode-hint {
   text-align: center;
   margin-top: var(--space-6);
   font-size: var(--text-label-md);

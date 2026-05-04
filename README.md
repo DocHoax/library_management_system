@@ -23,7 +23,7 @@ The application supports:
 
 - `src/` - React application, pages, layout, context, and API client
 - `backend/` - PHP API entry point, routing, middleware, and utilities
-- `database/` - schema and seed data
+- `database/` - database schema and SQL setup scripts
 - `public/` - static assets served by Vite
 
 ## Prerequisites
@@ -56,12 +56,13 @@ cp backend/.env.example backend/.env
 
 ### 3. Create the database
 
-Import the schema and seed data into MySQL. The default database name is `lasustech_library`.
+Import the schema into MySQL. The default database name is `lasustech_library`.
 
 ```bash
 mysql -u root -p < database/schema.sql
-mysql -u root -p < database/seed.sql
 ```
+
+The project ships without demo seed data. New users should register through the website.
 
 Update the values in `backend/.env` if your MySQL user, password, or host differ from the defaults.
 
@@ -85,20 +86,12 @@ npm run dev
 
 The app runs at `http://localhost:5173` and proxies API requests to the backend.
 
-## Default Accounts
+## Signing Up
 
-The seed data includes demo users. All seeded accounts use the password `password123`.
-
-| Role | Email |
-| --- | --- |
-| Admin | `admin@lasustech.edu.ng` |
-| Admin | `director@lasustech.edu.ng` |
-| Librarian | `librarian1@lasustech.edu.ng` |
-| Librarian | `librarian2@lasustech.edu.ng` |
-| Librarian | `librarian3@lasustech.edu.ng` |
-| Student | `student1@lasustech.edu.ng` |
-| Student | `student2@lasustech.edu.ng` |
-| Student | `student3@lasustech.edu.ng` |
+- Open the login page and switch to **Sign Up**.
+- Create a new student account with your name, email, and password.
+- After registration, the app signs you in automatically.
+- Admin and librarian accounts can be created later by an administrator through user management.
 
 ## Available Features
 
@@ -202,14 +195,14 @@ The backend routes are organized by feature and exposed under `/api`:
 
 ## Development Notes
 
-- Seeded fines are calculated at a default rate of 100 per day.
+- Fines are calculated at a default rate of 100 per day.
 - Students can borrow up to 5 books at a time by default.
 - Loan duration is set to 14 days in the backend configuration.
 
 ## Troubleshooting
 
 - If the frontend cannot reach the API, confirm that the PHP server is running on port 8000.
-- If login fails for seeded users, verify that the database was imported correctly and that the seed data is present.
+- If signup fails, verify that the users table exists and that the backend is connected to the correct MySQL database.
 - If the backend returns a database error, check the MySQL credentials in `backend/config/database.php`.
 
 ## License
