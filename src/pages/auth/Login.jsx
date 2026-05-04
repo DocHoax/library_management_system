@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { booksApi, categoriesApi } from '../../services/api';
 import { Library, Mail, Lock, Eye, EyeOff, BookOpen, Users, BarChart3, ArrowRight } from 'lucide-react';
 import './Login.css';
 
@@ -11,6 +12,7 @@ export default function Login() {
   const [activeRole, setActiveRole] = useState('student');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [heroStats, setHeroStats] = useState({ books: 0, available: 0, categories: 0 });
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -47,6 +49,33 @@ export default function Login() {
     setPassword(demoCredentials[role].password);
   };
 
+  useEffect(() => {
+    let isMounted = true;
+
+    Promise.all([
+      booksApi.list({ per_page: 1 }),
+      booksApi.list({ per_page: 1, available: '1' }),
+      categoriesApi.list(),
+    ])
+      .then(([booksData, availableData, categoriesData]) => {
+        if (!isMounted) return;
+
+        setHeroStats({
+          books: booksData.pagination?.total || 0,
+          available: availableData.pagination?.total || 0,
+          categories: categoriesData.categories?.length || 0,
+        });
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        setHeroStats({ books: 0, available: 0, categories: 0 });
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return (
     <div className="login-page">
       {/* Left Hero Section */}
@@ -66,15 +95,15 @@ export default function Login() {
           </p>
           <div className="login-hero__stats">
             <div className="login-hero__stat">
-              <span className="login-hero__stat-number">12,456</span>
+              <span className="login-hero__stat-number">{heroStats.books.toLocaleString()}</span>
               <span className="login-hero__stat-label">Books</span>
             </div>
             <div className="login-hero__stat">
-              <span className="login-hero__stat-number">3,200+</span>
-              <span className="login-hero__stat-label">Active Users</span>
+              <span className="login-hero__stat-number">{heroStats.available.toLocaleString()}</span>
+              <span className="login-hero__stat-label">Available</span>
             </div>
             <div className="login-hero__stat">
-              <span className="login-hero__stat-number">10</span>
+              <span className="login-hero__stat-number">{heroStats.categories.toLocaleString()}</span>
               <span className="login-hero__stat-label">Departments</span>
             </div>
           </div>
