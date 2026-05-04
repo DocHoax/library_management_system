@@ -127,6 +127,20 @@ The backend routes are organized by feature:
 - Database credentials, JWT settings, and business rules live in `backend/config/database.php`.
 - The backend currently allows requests from `http://localhost:5173`.
 
+## Authentication Flow
+
+- Logging in returns a JWT token and a user object.
+- The frontend stores the token in `localStorage` under `lms_token`.
+- Protected requests send the token in the `Authorization: Bearer <token>` header.
+- The `auth/me` endpoint is used to restore the current session on page load.
+- User registration creates a new student account by default.
+
+## Route Behavior
+
+- Visiting `/` redirects to the current user role dashboard after authentication.
+- Unauthenticated users are redirected to `/login`.
+- Users who try to access a route outside their role are redirected back to their own dashboard.
+
 ## NPM Scripts
 
 - `npm run dev` - start the Vite development server
