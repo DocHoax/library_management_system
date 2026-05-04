@@ -102,6 +102,7 @@ export const transactionsApi = {
 // Reservations API
 export const reservationsApi = {
   create: (bookId) => ApiService.post('reservations', { book_id: bookId }),
+  my: () => ApiService.get('reservations/my'),
 };
 
 // Fines API

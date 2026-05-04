@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { transactionsApi, finesApi } from '../../services/api';
-import { BookOpen, AlertCircle, Calendar, Clock } from 'lucide-react';
+import { transactionsApi, finesApi, reservationsApi } from '../../services/api';
+import { BookOpen, AlertCircle, Calendar, Clock, Bookmark } from 'lucide-react';
 import '../Dashboard.css';
 
 export default function StudentDashboard() {
@@ -9,14 +9,17 @@ export default function StudentDashboard() {
   const [transactions, setTransactions] = useState([]);
   const [fines, setFines] = useState({ fines: [], summary: { total_pending: 0 } });
   const [loading, setLoading] = useState(true);
+  const [reservations, setReservations] = useState([]);
 
   useEffect(() => {
     Promise.all([
       transactionsApi.my(),
       finesApi.my(),
-    ]).then(([txData, fineData]) => {
+      reservationsApi.my(),
+    ]).then(([txData, fineData, reservationData]) => {
       setTransactions(txData.transactions || []);
       setFines(fineData);
+      setReservations(reservationData.reservations || []);
     }).catch(console.error).finally(() => setLoading(false));
   }, []);
 
@@ -24,6 +27,8 @@ export default function StudentDashboard() {
 
   const activeBorrows = transactions.filter(t => t.status === 'checked_out' || t.status === 'overdue');
   const history = transactions.filter(t => t.status === 'returned');
+  const activeReservations = reservations.filter(r => r.status === 'active');
+  const recentReservations = reservations.slice(0, 5);
   const firstName = user?.full_name?.split(' ')[0] || 'Student';
 
   const getDueStatus = (daysRemaining) => {
@@ -128,6 +133,44 @@ export default function StudentDashboard() {
           </div>
         </div>
       )}
+
+      {/* Reservation History */}
+      <div className="card dashboard-card">
+        <div className="dashboard-card__header">
+          <h3>Reservations</h3>
+          <span className="badge badge--returned">{activeReservations.length} active</span>
+        </div>
+        <div className="transaction-list">
+          {recentReservations.map((reservation, i) => (
+            <div key={reservation.id || i} className="transaction-row">
+              <div className="transaction-row__info">
+                <span className="transaction-row__book" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Bookmark size={14} />
+                  {reservation.book_title}
+                </span>
+                <span className="transaction-row__student">
+                  Reserved: {new Date(reservation.reserved_date).toLocaleDateString('en-NG')}
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                <span className={`badge badge--${reservation.status === 'active' ? 'available' : 'returned'}`}>
+                  {reservation.status}
+                </span>
+                <span style={{ fontSize: 'var(--text-label-sm)', color: 'var(--outline)' }}>
+                  Expires {new Date(reservation.expiry_date).toLocaleDateString('en-NG')}
+                </span>
+              </div>
+            </div>
+          ))}
+          {recentReservations.length === 0 && (
+            <div className="empty-state">
+              <Bookmark size={48} />
+              <h3>No Reservations Yet</h3>
+              <p>Reserve books from the catalog and they will appear here.</p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

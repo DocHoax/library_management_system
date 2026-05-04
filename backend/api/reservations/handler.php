@@ -7,9 +7,28 @@ $db = Database::getConnection();
 $input = json_decode(file_get_contents('php://input'), true) ?? [];
 
 match (true) {
+    $method === 'GET' && $action === 'my' => myReservations($db),
     $method === 'POST' && $action === '' => createReservation($db, $input),
     default => errorResponse('Reservations endpoint not found', 404),
 };
+
+function myReservations(PDO $db): void {
+    $authUser = requireAuth();
+
+    $stmt = $db->prepare(
+        'SELECT r.id, r.reserved_date, r.expiry_date, r.status,
+                b.title as book_title, b.author as book_author, b.cover_image
+         FROM reservations r
+         JOIN books b ON r.book_id = b.id
+         WHERE r.user_id = ?
+         ORDER BY r.created_at DESC'
+    );
+    $stmt->execute([$authUser['user_id']]);
+
+    $reservations = $stmt->fetchAll();
+
+    jsonResponse(['reservations' => $reservations]);
+}
 
 function createReservation(PDO $db, array $input): void {
     $authUser = requireAuth();
