@@ -19,30 +19,24 @@ INSERT INTO categories (name, description, icon) VALUES
 ('Environmental Science', 'Ecology, conservation, and environmental management', 'leaf'),
 ('General Reference', 'Encyclopedias, dictionaries, and general knowledge', 'library');
 
--- ============================================
--- USERS (passwords are bcrypt hash of 'password123')
--- ============================================
 INSERT INTO users (email, password_hash, full_name, matric_number, role, department, phone, status) VALUES
--- Admins
-('admin@lasustech.edu.ng', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Dr. Adebayo Oluwaseun', NULL, 'admin', 'Library Services', '08012345678', 'active'),
-('director@lasustech.edu.ng', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Prof. Funmilayo Adeyemi', NULL, 'admin', 'University Administration', '08023456789', 'active'),
+('admin@lasustech.edu.ng', '$2y$10$L09Fbqvpdg6.bcOX.rto/e0O4FF4AYHyyutt5y9XPoLYvFIT4v.p2', 'Dr. Adebayo Oluwaseun', NULL, 'admin', 'Library Services', '08012345678', 'active'),
+('director@lasustech.edu.ng', '$2y$10$L09Fbqvpdg6.bcOX.rto/e0O4FF4AYHyyutt5y9XPoLYvFIT4v.p2', 'Prof. Funmilayo Adeyemi', NULL, 'admin', 'University Administration', '08023456789', 'active'),
 
--- Librarians
-('librarian1@lasustech.edu.ng', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Mrs. Chidinma Okonkwo', NULL, 'librarian', 'Library Services', '08034567890', 'active'),
-('librarian2@lasustech.edu.ng', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Mr. Emeka Nwosu', NULL, 'librarian', 'Library Services', '08045678901', 'active'),
-('librarian3@lasustech.edu.ng', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Miss Aisha Bello', NULL, 'librarian', 'Library Services', '08056789012', 'active'),
+('librarian1@lasustech.edu.ng', '$2y$10$L09Fbqvpdg6.bcOX.rto/e0O4FF4AYHyyutt5y9XPoLYvFIT4v.p2', 'Mrs. Chidinma Okonkwo', NULL, 'librarian', 'Library Services', '08034567890', 'active'),
+('librarian2@lasustech.edu.ng', '$2y$10$L09Fbqvpdg6.bcOX.rto/e0O4FF4AYHyyutt5y9XPoLYvFIT4v.p2', 'Mr. Emeka Nwosu', NULL, 'librarian', 'Library Services', '08045678901', 'active'),
+('librarian3@lasustech.edu.ng', '$2y$10$L09Fbqvpdg6.bcOX.rto/e0O4FF4AYHyyutt5y9XPoLYvFIT4v.p2', 'Miss Aisha Bello', NULL, 'librarian', 'Library Services', '08056789012', 'active'),
 
--- Students
-('student1@lasustech.edu.ng', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Adebayo Ogundimu', '20/0001', 'student', 'Computer Science', '09012345678', 'active'),
-('student2@lasustech.edu.ng', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Fatimah Abdullahi', '20/0002', 'student', 'Computer Science', '09023456789', 'active'),
-('student3@lasustech.edu.ng', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Chinedu Okafor', '20/0003', 'student', 'Engineering', '09034567890', 'active'),
-('student4@lasustech.edu.ng', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Amina Ibrahim', '20/0004', 'student', 'Mathematics', '09045678901', 'active'),
-('student5@lasustech.edu.ng', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Oluwadamilola Adesanya', '20/0005', 'student', 'Physics', '09056789012', 'active'),
-('student6@lasustech.edu.ng', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Blessing Okoro', '20/0006', 'student', 'Chemistry', '09067890123', 'active'),
-('student7@lasustech.edu.ng', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Yusuf Mohammed', '20/0007', 'student', 'Business Administration', '09078901234', 'active'),
-('student8@lasustech.edu.ng', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Grace Adekunle', '20/0008', 'student', 'Computer Science', '09089012345', 'active'),
-('student9@lasustech.edu.ng', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Tunde Bakare', '20/0009', 'student', 'Engineering', '09090123456', 'active'),
-('student10@lasustech.edu.ng', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Ngozi Eze', '20/0010', 'student', 'Biology', '09001234567', 'active');
+('student1@lasustech.edu.ng', '$2y$10$L09Fbqvpdg6.bcOX.rto/e0O4FF4AYHyyutt5y9XPoLYvFIT4v.p2', 'Adebayo Ogundimu', '20/0001', 'student', 'Computer Science', '09012345678', 'active'),
+('student2@lasustech.edu.ng', '$2y$10$L09Fbqvpdg6.bcOX.rto/e0O4FF4AYHyyutt5y9XPoLYvFIT4v.p2', 'Fatimah Abdullahi', '20/0002', 'student', 'Computer Science', '09023456789', 'active'),
+('student3@lasustech.edu.ng', '$2y$10$L09Fbqvpdg6.bcOX.rto/e0O4FF4AYHyyutt5y9XPoLYvFIT4v.p2', 'Chinedu Okafor', '20/0003', 'student', 'Engineering', '09034567890', 'active'),
+('student4@lasustech.edu.ng', '$2y$10$L09Fbqvpdg6.bcOX.rto/e0O4FF4AYHyyutt5y9XPoLYvFIT4v.p2', 'Amina Ibrahim', '20/0004', 'student', 'Mathematics', '09045678901', 'active'),
+('student5@lasustech.edu.ng', '$2y$10$L09Fbqvpdg6.bcOX.rto/e0O4FF4AYHyyutt5y9XPoLYvFIT4v.p2', 'Oluwadamilola Adesanya', '20/0005', 'student', 'Physics', '09056789012', 'active'),
+('student6@lasustech.edu.ng', '$2y$10$L09Fbqvpdg6.bcOX.rto/e0O4FF4AYHyyutt5y9XPoLYvFIT4v.p2', 'Blessing Okoro', '20/0006', 'student', 'Chemistry', '09067890123', 'active'),
+('student7@lasustech.edu.ng', '$2y$10$L09Fbqvpdg6.bcOX.rto/e0O4FF4AYHyyutt5y9XPoLYvFIT4v.p2', 'Yusuf Mohammed', '20/0007', 'student', 'Business Administration', '09078901234', 'active'),
+('student8@lasustech.edu.ng', '$2y$10$L09Fbqvpdg6.bcOX.rto/e0O4FF4AYHyyutt5y9XPoLYvFIT4v.p2', 'Grace Adekunle', '20/0008', 'student', 'Computer Science', '09089012345', 'active'),
+('student9@lasustech.edu.ng', '$2y$10$L09Fbqvpdg6.bcOX.rto/e0O4FF4AYHyyutt5y9XPoLYvFIT4v.p2', 'Tunde Bakare', '20/0009', 'student', 'Engineering', '09090123456', 'active'),
+('student10@lasustech.edu.ng', '$2y$10$L09Fbqvpdg6.bcOX.rto/e0O4FF4AYHyyutt5y9XPoLYvFIT4v.p2', 'Ngozi Eze', '20/0010', 'student', 'Biology', '09001234567', 'active');
 
 -- ============================================
 -- BOOKS
