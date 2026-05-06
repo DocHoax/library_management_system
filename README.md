@@ -94,6 +94,7 @@ The app runs at `http://localhost:5173` and proxies API requests to the backend.
 - The first administrator uses the **Bootstrap Admin** mode and the bootstrap key from `backend/.env`.
 - After registration, the app signs you in automatically.
 - Admin and librarian accounts can be created later by an administrator through user management or invite links.
+- Admins can list invite codes and revoke or expire them from user management.
 
 ## Available Features
 
@@ -135,6 +136,8 @@ The backend routes are organized by feature and exposed under `/api`:
 - `POST /api/auth/register` - create a student account
 - `POST /api/auth/bootstrap-admin` - create the first admin account with the bootstrap key
 - `POST /api/auth/invite` - create a staff invite code
+- `GET /api/auth/invites` - list invite codes for admins
+- `PUT /api/auth/invites/{id}` - revoke or expire an invite code
 - `GET /api/auth/me` - fetch the current authenticated user
 - `GET /api/books` - list books with pagination and filters
 - `GET /api/books/search` - search books by query string
