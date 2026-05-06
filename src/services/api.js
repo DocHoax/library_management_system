@@ -77,6 +77,8 @@ class ApiService {
 export const authApi = {
   login: (email, password) => ApiService.post('auth/login', { email, password }),
   register: (data) => ApiService.post('auth/register', data),
+  bootstrapAdmin: (data) => ApiService.post('auth/bootstrap-admin', data),
+  createInvite: (data) => ApiService.post('auth/invite', data),
   me: () => ApiService.get('auth/me'),
 };
 

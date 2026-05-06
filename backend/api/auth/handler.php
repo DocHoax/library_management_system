@@ -120,7 +120,7 @@ function handleRegister(PDO $db, array $input): void {
 }
 
 function handleBootstrapAdmin(PDO $db, array $input): void {
-    $stmt = $db->prepare('SELECT COUNT(*) FROM users WHERE role = "admin"');
+    $stmt = $db->prepare("SELECT COUNT(*) FROM users WHERE role = 'admin'");
     $stmt->execute();
 
     if ((int)$stmt->fetchColumn() > 0) {
@@ -128,6 +128,10 @@ function handleBootstrapAdmin(PDO $db, array $input): void {
     }
 
     $bootstrapKey = trim($input['bootstrap_key'] ?? '');
+    if (BOOTSTRAP_ADMIN_KEY === '') {
+        errorResponse('Bootstrap admin is not configured', 500);
+    }
+
     if (!$bootstrapKey || !hash_equals(BOOTSTRAP_ADMIN_KEY, $bootstrapKey)) {
         errorResponse('Invalid bootstrap key', 403);
     }
@@ -152,7 +156,7 @@ function handleBootstrapAdmin(PDO $db, array $input): void {
         errorResponse('Email already registered', 409);
     }
 
-    $stmt = $db->prepare('INSERT INTO users (email, password_hash, full_name, role, department, phone) VALUES (?, ?, ?, "admin", ?, ?)');
+    $stmt = $db->prepare('INSERT INTO users (email, password_hash, full_name, role, department, phone) VALUES (?, ?, ?, \'admin\', ?, ?)');
     $stmt->execute([
         $email,
         password_hash($password, PASSWORD_BCRYPT),

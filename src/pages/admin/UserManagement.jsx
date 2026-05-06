@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { usersApi } from '../../services/api';
-import { Search, Plus, UserPlus, Edit, Trash2, X } from 'lucide-react';
+import { authApi, usersApi } from '../../services/api';
+import { Search, Plus, UserPlus, Edit, Trash2, X, Ticket } from 'lucide-react';
 import '../Dashboard.css';
 
 export default function UserManagement() {
@@ -12,6 +12,10 @@ export default function UserManagement() {
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({ full_name: '', email: '', password: '', role: 'student', matric_number: '', department: '', phone: '' });
+  const [inviteRole, setInviteRole] = useState('librarian');
+  const [inviteDays, setInviteDays] = useState(7);
+  const [inviteResult, setInviteResult] = useState(null);
+  const [inviteLoading, setInviteLoading] = useState(false);
 
   const fetchUsers = async (page = 1) => {
     setLoading(true);
@@ -35,6 +39,20 @@ export default function UserManagement() {
   const handleOpenCreate = () => {
     resetForm();
     setShowModal(true);
+  };
+
+  const handleCreateInvite = async () => {
+    setInviteLoading(true);
+    setInviteResult(null);
+
+    try {
+      const response = await authApi.createInvite({ role: inviteRole, expires_in_days: inviteDays });
+      setInviteResult(response.invite);
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setInviteLoading(false);
+    }
   };
 
   const handleEdit = (user) => {
@@ -92,6 +110,56 @@ export default function UserManagement() {
         </button>
       </div>
 
+      <div className="card" style={{ marginBottom: 'var(--space-6)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 'var(--space-4)', flexWrap: 'wrap', alignItems: 'end' }}>
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <h3 style={{ marginBottom: 'var(--space-2)' }}>Generate Staff Invite</h3>
+            <p style={{ margin: 0, color: 'var(--on-surface-variant)' }}>
+              Create a one-time code for a librarian or another administrator.
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap', alignItems: 'end' }}>
+            <div className="input-group" style={{ minWidth: 180, margin: 0 }}>
+              <label>Role</label>
+              <select className="input-field" value={inviteRole} onChange={e => setInviteRole(e.target.value)}>
+                <option value="librarian">Librarian</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <div className="input-group" style={{ minWidth: 140, margin: 0 }}>
+              <label>Expiry Days</label>
+              <input className="input-field" type="number" min="1" value={inviteDays} onChange={e => setInviteDays(Number(e.target.value) || 1)} />
+            </div>
+            <button type="button" className="btn btn--ghost" onClick={handleCreateInvite} disabled={inviteLoading}>
+              <Ticket size={18} /> {inviteLoading ? 'Generating...' : 'Generate Invite'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {inviteResult && (
+        <div className="card" style={{ marginBottom: 'var(--space-6)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 'var(--space-4)', flexWrap: 'wrap' }}>
+            <div>
+              <h3 style={{ marginBottom: 'var(--space-2)' }}>Invite Code</h3>
+              <p style={{ margin: 0, color: 'var(--on-surface-variant)' }}>
+                Share this code with the staff member. It expires on {inviteResult.expires_at}.
+              </p>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginTop: 'var(--space-4)', flexWrap: 'wrap' }}>
+            <code style={{ padding: 'var(--space-3) var(--space-4)', borderRadius: 12, background: 'var(--surface-container-low)', wordBreak: 'break-all' }}>{inviteResult.code}</code>
+            <button
+              type="button"
+              className="btn btn--ghost btn--sm"
+              onClick={() => navigator.clipboard.writeText(inviteResult.code)}
+            >
+              Copy Code
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Filters */}
       <div style={{ display: 'flex', gap: 'var(--space-4)', marginBottom: 'var(--space-6)', flexWrap: 'wrap' }}>
         <form onSubmit={handleSearch} style={{ flex: 1, minWidth: 280 }}>
@@ -100,9 +168,9 @@ export default function UserManagement() {
             <input placeholder="Search users..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
           </div>
         </form>
-        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
           {['', 'admin', 'librarian', 'student'].map(role => (
-            <button key={role} className={`btn btn--sm ${roleFilter === role ? 'btn--primary' : 'btn--ghost'}`} onClick={() => setRoleFilter(role)}>
+            <button key={role} type="button" className={`btn btn--sm ${roleFilter === role ? 'btn--primary' : 'btn--ghost'}`} onClick={() => setRoleFilter(role)}>
               {role || 'All'}
             </button>
           ))}

@@ -43,12 +43,19 @@ export function AuthProvider({ children }) {
     return response.user;
   };
 
+  const bootstrapAdmin = async (data) => {
+    const response = await authApi.bootstrapAdmin(data);
+    ApiService.setToken(response.token);
+    setUser(response.user);
+    return response.user;
+  };
+
   const logout = () => {
     ApiService.setToken(null);
     setUser(null);
   };
 
-  const value = { user, login, register, logout, loading, refreshUser: fetchUser };
+  const value = { user, login, register, bootstrapAdmin, logout, loading, refreshUser: fetchUser };
 
   return (
     <AuthContext.Provider value={value}>

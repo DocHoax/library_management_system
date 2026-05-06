@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { booksApi, categoriesApi } from '../../services/api';
-import { Library, Mail, Lock, Eye, EyeOff, BookOpen, ArrowRight, UserPlus } from 'lucide-react';
+import { Library, Mail, Lock, Eye, EyeOff, BookOpen, ArrowRight, UserPlus, ShieldCheck, KeyRound, Ticket } from 'lucide-react';
 import './Login.css';
 
 export default function Login() {
@@ -12,12 +12,14 @@ export default function Login() {
   const [matricNumber, setMatricNumber] = useState('');
   const [department, setDepartment] = useState('');
   const [phone, setPhone] = useState('');
+  const [inviteCode, setInviteCode] = useState('');
+  const [bootstrapKey, setBootstrapKey] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [mode, setMode] = useState('login');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [heroStats, setHeroStats] = useState({ books: 0, available: 0, categories: 0 });
-  const { login, register } = useAuth();
+  const { login, register, bootstrapAdmin } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -28,14 +30,24 @@ export default function Login() {
     try {
       const user = mode === 'login'
         ? await login(email, password)
-        : await register({
-            full_name: fullName,
-            email,
-            password,
-            matric_number: matricNumber,
-            department,
-            phone,
-          });
+        : mode === 'register'
+          ? await register({
+              full_name: fullName,
+              email,
+              password,
+              matric_number: matricNumber,
+              department,
+              phone,
+              invite_code: inviteCode,
+            })
+          : await bootstrapAdmin({
+              full_name: fullName,
+              email,
+              password,
+              department,
+              phone,
+              bootstrap_key: bootstrapKey,
+            });
 
       navigate(`/${user.role}`, { replace: true });
     } catch (err) {
@@ -113,8 +125,14 @@ export default function Login() {
       <div className="login-form-section">
         <div className="login-form-wrapper">
           <div className="login-form-header">
-              <h2>{mode === 'login' ? 'Welcome Back' : 'Create Account'}</h2>
-              <p>{mode === 'login' ? 'Sign in to your library account' : 'Register to start using the library system'}</p>
+              <h2>{mode === 'login' ? 'Welcome Back' : mode === 'register' ? 'Create Account' : 'Bootstrap Admin'}</h2>
+              <p>
+                {mode === 'login'
+                  ? 'Sign in to your library account'
+                  : mode === 'register'
+                    ? 'Register to start using the library system'
+                    : 'Create the first administrator with the bootstrap key'}
+              </p>
             </div>
 
             <div className="login-mode-toggle" style={{ display: 'flex', gap: 'var(--space-2)', marginBottom: 'var(--space-6)' }}>
@@ -132,6 +150,13 @@ export default function Login() {
               >
                 <UserPlus size={16} /> Sign Up
               </button>
+              <button
+                type="button"
+                className={`btn btn--sm ${mode === 'bootstrap' ? 'btn--primary' : 'btn--ghost'}`}
+                onClick={() => setMode('bootstrap')}
+              >
+                <ShieldCheck size={16} /> Bootstrap Admin
+              </button>
             </div>
 
           <form className="login-form" onSubmit={handleSubmit} id="login-form">
@@ -141,7 +166,7 @@ export default function Login() {
               </div>
             )}
 
-            {mode === 'register' && (
+            {(mode === 'register' || mode === 'bootstrap') && (
               <>
                 <div className="input-group">
                   <label htmlFor="full-name">Full Name</label>
@@ -155,6 +180,26 @@ export default function Login() {
                       onChange={e => setFullName(e.target.value)}
                       required
                       autoComplete="name"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {mode === 'register' && (
+              <>
+                <div className="input-group">
+                  <label htmlFor="invite-code">Invite Code</label>
+                  <div className="login-input-wrap">
+                    <Ticket size={18} className="login-input-icon" />
+                    <input
+                      id="invite-code"
+                      type="text"
+                      className="input-field login-input"
+                      placeholder="Optional staff invite code"
+                      value={inviteCode}
+                      onChange={e => setInviteCode(e.target.value)}
+                      autoComplete="off"
                     />
                   </div>
                 </div>
@@ -182,6 +227,42 @@ export default function Login() {
                       type="text"
                       className="input-field login-input"
                       placeholder="Your department"
+                      value={department}
+                      onChange={e => setDepartment(e.target.value)}
+                      autoComplete="organization"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {mode === 'bootstrap' && (
+              <>
+                <div className="input-group">
+                  <label htmlFor="bootstrap-key">Bootstrap Key</label>
+                  <div className="login-input-wrap">
+                    <KeyRound size={18} className="login-input-icon" />
+                    <input
+                      id="bootstrap-key"
+                      type="password"
+                      className="input-field login-input"
+                      placeholder="Enter the bootstrap key"
+                      value={bootstrapKey}
+                      onChange={e => setBootstrapKey(e.target.value)}
+                      autoComplete="off"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="input-group">
+                  <label htmlFor="bootstrap-department">Department</label>
+                  <div className="login-input-wrap">
+                    <input
+                      id="bootstrap-department"
+                      type="text"
+                      className="input-field login-input"
+                      placeholder="Library Services"
                       value={department}
                       onChange={e => setDepartment(e.target.value)}
                       autoComplete="organization"
@@ -259,14 +340,14 @@ export default function Login() {
             <button
               type="submit"
               className="btn btn--primary btn--lg login-submit"
-              disabled={loading || !email || !password || (mode === 'register' && !fullName)}
+              disabled={loading || !email || !password || ((mode === 'register' || mode === 'bootstrap') && !fullName) || (mode === 'bootstrap' && !bootstrapKey)}
               id="login-submit-btn"
             >
               {loading ? (
                 <span className="login-spinner" />
               ) : (
                 <>
-                  {mode === 'login' ? 'Sign In' : 'Create Account'}
+                  {mode === 'login' ? 'Sign In' : mode === 'register' ? 'Create Account' : 'Bootstrap Admin'}
                   <ArrowRight size={18} />
                 </>
               )}
@@ -275,8 +356,10 @@ export default function Login() {
 
           <p className="login-mode-hint">
             {mode === 'login'
-              ? 'Need an account? Switch to Sign Up to register as a student.'
-              : 'Already have an account? Switch back to Sign In.'}
+              ? 'Need an account? Switch to Sign Up to register as a student, or use Bootstrap Admin for the first administrator.'
+              : mode === 'register'
+                ? 'Already have an account? Switch back to Sign In.'
+                : 'Use the bootstrap key only once, before the first admin exists.'}
           </p>
         </div>
       </div>
