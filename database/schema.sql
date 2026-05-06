@@ -147,11 +147,13 @@ CREATE TABLE invites (
   created_by INT DEFAULT NULL,
   expires_at DATETIME NOT NULL,
   used_at DATETIME DEFAULT NULL,
+  revoked_at DATETIME DEFAULT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
   INDEX idx_code (code),
   INDEX idx_role (role),
-  INDEX idx_expires_at (expires_at)
+  INDEX idx_expires_at (expires_at),
+  INDEX idx_revoked_at (revoked_at)
 ) ENGINE=InnoDB;
 
 -- ============================================

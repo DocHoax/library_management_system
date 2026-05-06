@@ -79,6 +79,8 @@ export const authApi = {
   register: (data) => ApiService.post('auth/register', data),
   bootstrapAdmin: (data) => ApiService.post('auth/bootstrap-admin', data),
   createInvite: (data) => ApiService.post('auth/invite', data),
+  listInvites: () => ApiService.get('auth/invites'),
+  updateInvite: (id, data) => ApiService.put(`auth/invites/${id}`, data),
   me: () => ApiService.get('auth/me'),
 };
 

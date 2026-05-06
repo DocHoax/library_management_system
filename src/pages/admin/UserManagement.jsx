@@ -5,6 +5,7 @@ import '../Dashboard.css';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
+  const [invites, setInvites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
@@ -16,6 +17,7 @@ export default function UserManagement() {
   const [inviteDays, setInviteDays] = useState(7);
   const [inviteResult, setInviteResult] = useState(null);
   const [inviteLoading, setInviteLoading] = useState(false);
+  const [inviteActionLoadingId, setInviteActionLoadingId] = useState(null);
 
   const fetchUsers = async (page = 1) => {
     setLoading(true);
@@ -27,7 +29,19 @@ export default function UserManagement() {
     finally { setLoading(false); }
   };
 
-  useEffect(() => { fetchUsers(1); }, [roleFilter]);
+  const fetchInvites = async () => {
+    try {
+      const data = await authApi.listInvites();
+      setInvites(data.invites || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers(1);
+    fetchInvites();
+  }, [roleFilter]);
 
   const handleSearch = (e) => { e.preventDefault(); fetchUsers(1); };
 
@@ -48,10 +62,27 @@ export default function UserManagement() {
     try {
       const response = await authApi.createInvite({ role: inviteRole, expires_in_days: inviteDays });
       setInviteResult(response.invite);
+      fetchInvites();
     } catch (err) {
       alert(err.message);
     } finally {
       setInviteLoading(false);
+    }
+  };
+
+  const handleInviteStatusChange = async (inviteId, status) => {
+    setInviteActionLoadingId(inviteId);
+
+    try {
+      await authApi.updateInvite(inviteId, { status });
+      await fetchInvites();
+      if (inviteResult?.id === inviteId) {
+        setInviteResult(null);
+      }
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setInviteActionLoadingId(null);
     }
   };
 
@@ -159,6 +190,70 @@ export default function UserManagement() {
           </div>
         </div>
       )}
+
+      <div className="card" style={{ marginBottom: 'var(--space-6)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 'var(--space-4)', flexWrap: 'wrap', marginBottom: 'var(--space-4)' }}>
+          <div>
+            <h3 style={{ marginBottom: 'var(--space-2)' }}>Invite List</h3>
+            <p style={{ margin: 0, color: 'var(--on-surface-variant)' }}>Review active, expired, revoked, and used invite codes.</p>
+          </div>
+        </div>
+
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: 'var(--surface-container-low)' }}>
+                {['Code', 'Role', 'Status', 'Expires', 'Created', 'Created By', 'Actions'].map(h => (
+                  <th key={h} style={{ padding: 'var(--space-4) var(--space-5)', textAlign: 'left', fontSize: 'var(--text-label-md)', color: 'var(--primary-container)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {invites.map((invite, index) => (
+                <tr key={invite.id} style={{ background: index % 2 === 0 ? 'var(--surface-container-lowest)' : 'var(--surface-container-low)', transition: 'background var(--transition-fast)' }}>
+                  <td style={{ padding: 'var(--space-4) var(--space-5)', fontFamily: 'monospace', fontSize: 'var(--text-body-sm)' }}>{invite.code}</td>
+                  <td style={{ padding: 'var(--space-4) var(--space-5)' }}>
+                    <span className={`badge ${roleColors[invite.role] || ''}`}>{invite.role}</span>
+                  </td>
+                  <td style={{ padding: 'var(--space-4) var(--space-5)' }}>
+                    <span className={`badge ${invite.status === 'active' ? 'badge--available' : invite.status === 'used' ? 'badge--borrowed' : 'badge--overdue'}`}>{invite.status}</span>
+                  </td>
+                  <td style={{ padding: 'var(--space-4) var(--space-5)', fontSize: 'var(--text-body-sm)', color: 'var(--on-surface-variant)' }}>{invite.expires_at}</td>
+                  <td style={{ padding: 'var(--space-4) var(--space-5)', fontSize: 'var(--text-body-sm)', color: 'var(--on-surface-variant)' }}>{invite.created_at}</td>
+                  <td style={{ padding: 'var(--space-4) var(--space-5)', fontSize: 'var(--text-body-sm)', color: 'var(--on-surface-variant)' }}>{invite.created_by_name || '-'}</td>
+                  <td style={{ padding: 'var(--space-4) var(--space-5)' }}>
+                    <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
+                      {invite.status === 'active' ? (
+                        <>
+                          <button
+                            type="button"
+                            className="btn btn--ghost btn--sm"
+                            disabled={inviteActionLoadingId === invite.id}
+                            onClick={() => handleInviteStatusChange(invite.id, 'revoked')}
+                          >
+                            Revoke
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn--ghost btn--sm"
+                            disabled={inviteActionLoadingId === invite.id}
+                            onClick={() => handleInviteStatusChange(invite.id, 'expired')}
+                          >
+                            Expire Now
+                          </button>
+                        </>
+                      ) : (
+                        <span style={{ color: 'var(--on-surface-variant)', fontSize: 'var(--text-label-sm)' }}>No actions available</span>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {invites.length === 0 && <div className="empty-state"><p>No invites found</p></div>}
+        </div>
+      </div>
 
       {/* Filters */}
       <div style={{ display: 'flex', gap: 'var(--space-4)', marginBottom: 'var(--space-6)', flexWrap: 'wrap' }}>

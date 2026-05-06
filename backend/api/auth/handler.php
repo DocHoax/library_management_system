@@ -11,6 +11,7 @@ match ($action) {
     'register' => handleRegister($db, $input),
     'bootstrap-admin' => handleBootstrapAdmin($db, $input),
     'invite' => handleCreateInvite($db, $input),
+    'invites' => handleInvites($db, $input),
     'me' => handleMe($db),
     default => errorResponse('Auth endpoint not found', 404),
 };
@@ -206,6 +207,7 @@ function handleCreateInvite(PDO $db, array $input): void {
     jsonResponse([
         'message' => 'Invite created successfully',
         'invite' => [
+            'id' => (int)$db->lastInsertId(),
             'code' => $code,
             'role' => $role,
             'expires_at' => $expiresAt,
@@ -213,8 +215,90 @@ function handleCreateInvite(PDO $db, array $input): void {
     ], 201);
 }
 
+function handleInvites(PDO $db, array $input): void {
+    requireAuth(['admin']);
+
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        $stmt = $db->query(
+            "SELECT i.id, i.code, i.role, i.created_by, i.expires_at, i.used_at, i.revoked_at, i.created_at, u.full_name AS created_by_name,
+            CASE
+                WHEN i.used_at IS NOT NULL THEN 'used'
+                WHEN i.revoked_at IS NOT NULL THEN 'revoked'
+                WHEN i.expires_at < NOW() THEN 'expired'
+                ELSE 'active'
+            END AS status
+            FROM invites i
+            LEFT JOIN users u ON u.id = i.created_by
+            ORDER BY i.created_at DESC, i.id DESC"
+        );
+
+        jsonResponse([
+            'invites' => $stmt->fetchAll(),
+        ]);
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+        handleUpdateInvite($db, $input);
+    }
+
+    errorResponse('Invite endpoint not found', 404);
+}
+
+function handleUpdateInvite(PDO $db, array $input): void {
+    global $id;
+
+    if (!ctype_digit((string)$id)) {
+        errorResponse('Invite id is required', 400);
+    }
+
+    $status = strtolower(trim($input['status'] ?? ''));
+    if (!in_array($status, ['revoked', 'expired'], true)) {
+        errorResponse('Valid status is required');
+    }
+
+    $stmt = $db->prepare('SELECT id, used_at, revoked_at FROM invites WHERE id = ? LIMIT 1');
+    $stmt->execute([(int)$id]);
+    $invite = $stmt->fetch();
+
+    if (!$invite) {
+        errorResponse('Invite not found', 404);
+    }
+
+    if ($invite['used_at'] !== null) {
+        errorResponse('Used invites cannot be modified', 409);
+    }
+
+    if ($status === 'revoked') {
+        $stmt = $db->prepare('UPDATE invites SET revoked_at = NOW() WHERE id = ?');
+        $stmt->execute([(int)$id]);
+    } else {
+        $stmt = $db->prepare('UPDATE invites SET expires_at = NOW(), revoked_at = NULL WHERE id = ?');
+        $stmt->execute([(int)$id]);
+    }
+
+    $stmt = $db->prepare(
+        "SELECT i.id, i.code, i.role, i.created_by, i.expires_at, i.used_at, i.revoked_at, i.created_at, u.full_name AS created_by_name,
+        CASE
+            WHEN i.used_at IS NOT NULL THEN 'used'
+            WHEN i.revoked_at IS NOT NULL THEN 'revoked'
+            WHEN i.expires_at < NOW() THEN 'expired'
+            ELSE 'active'
+        END AS status
+        FROM invites i
+        LEFT JOIN users u ON u.id = i.created_by
+        WHERE i.id = ?
+        LIMIT 1"
+    );
+    $stmt->execute([(int)$id]);
+
+    jsonResponse([
+        'message' => 'Invite updated successfully',
+        'invite' => $stmt->fetch(),
+    ]);
+}
+
 function getActiveInvite(PDO $db, string $code): array|null {
-    $stmt = $db->prepare('SELECT id, code, role, expires_at, used_at FROM invites WHERE code = ? LIMIT 1');
+    $stmt = $db->prepare('SELECT id, code, role, expires_at, used_at, revoked_at FROM invites WHERE code = ? LIMIT 1');
     $stmt->execute([$code]);
     $invite = $stmt->fetch();
 
@@ -224,6 +308,10 @@ function getActiveInvite(PDO $db, string $code): array|null {
 
     if ($invite['used_at'] !== null) {
         errorResponse('Invite code has already been used', 409);
+    }
+
+    if ($invite['revoked_at'] !== null) {
+        errorResponse('Invite code has been revoked', 409);
     }
 
     if (strtotime($invite['expires_at']) < time()) {
