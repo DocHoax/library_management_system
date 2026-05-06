@@ -138,6 +138,23 @@ CREATE TABLE reservations (
 ) ENGINE=InnoDB;
 
 -- ============================================
+-- 7. INVITES TABLE
+-- ============================================
+CREATE TABLE invites (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  code VARCHAR(64) NOT NULL UNIQUE,
+  role ENUM('admin', 'librarian', 'student') NOT NULL DEFAULT 'student',
+  created_by INT DEFAULT NULL,
+  expires_at DATETIME NOT NULL,
+  used_at DATETIME DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+  INDEX idx_code (code),
+  INDEX idx_role (role),
+  INDEX idx_expires_at (expires_at)
+) ENGINE=InnoDB;
+
+-- ============================================
 -- 7. ACTIVITY LOG TABLE
 -- ============================================
 CREATE TABLE activity_log (

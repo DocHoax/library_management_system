@@ -62,6 +62,8 @@ define('DB_CHARSET', envValue('DB_CHARSET', 'utf8mb4'));
 // JWT Secret Key
 define('JWT_SECRET', envValue('JWT_SECRET', 'lasustech_lms_secret_key_2026_change_in_production'));
 define('JWT_EXPIRY', (int)envValue('JWT_EXPIRY', 86400)); // 24 hours
+define('BOOTSTRAP_ADMIN_KEY', envValue('BOOTSTRAP_ADMIN_KEY', ''));
+define('INVITE_EXPIRY_DAYS', (int)envValue('INVITE_EXPIRY_DAYS', 7));
 
 // Business Rules
 define('MAX_BOOKS_PER_STUDENT', (int)envValue('MAX_BOOKS_PER_STUDENT', 5));
