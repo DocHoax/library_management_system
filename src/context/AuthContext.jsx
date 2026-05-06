@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import ApiService, { authApi } from '../services/api';
 
@@ -20,13 +21,18 @@ export function AuthProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem('lms_token');
-    if (token) {
-      ApiService.setToken(token);
-      fetchUser();
-    } else {
-      setLoading(false);
-    }
+    const initialize = async () => {
+      const token = localStorage.getItem('lms_token');
+
+      if (token) {
+        ApiService.setToken(token);
+        await fetchUser();
+      } else {
+        setLoading(false);
+      }
+    };
+
+    void initialize();
   }, [fetchUser]);
 
   const login = async (email, password) => {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { authApi, usersApi } from '../../services/api';
-import { Search, Plus, UserPlus, Edit, Trash2, X, Ticket } from 'lucide-react';
+import { Search, UserPlus, Edit, Trash2, X, Ticket } from 'lucide-react';
 import '../Dashboard.css';
 
 export default function UserManagement() {
@@ -39,8 +39,11 @@ export default function UserManagement() {
   };
 
   useEffect(() => {
-    fetchUsers(1);
-    fetchInvites();
+    const initialize = async () => {
+      await Promise.all([fetchUsers(1), fetchInvites()]);
+    };
+
+    void initialize();
   }, [roleFilter]);
 
   const handleSearch = (e) => { e.preventDefault(); fetchUsers(1); };

@@ -42,7 +42,7 @@ class ApiService {
       return data;
     } catch (error) {
       if (error.message === 'Failed to fetch') {
-        throw new Error('Unable to connect to the server. Please check if the backend is running.');
+        throw new Error('Unable to connect to the server. Please check if the backend is running.', { cause: error });
       }
       throw error;
     }

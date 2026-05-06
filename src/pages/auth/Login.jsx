@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { booksApi, categoriesApi } from '../../services/api';
-import { Library, Mail, Lock, Eye, EyeOff, BookOpen, ArrowRight, UserPlus, ShieldCheck, KeyRound, Ticket } from 'lucide-react';
+import { Library, Mail, Lock, Eye, EyeOff, ArrowRight, UserPlus, ShieldCheck, KeyRound, Ticket } from 'lucide-react';
 import './Login.css';
 
 export default function Login() {
