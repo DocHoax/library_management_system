@@ -1,0 +1,3 @@
+-- LASUSTECH Library Management System
+-- No demo seed data is shipped with this project.
+-- Create real users through registration or bootstrap/invite flows.

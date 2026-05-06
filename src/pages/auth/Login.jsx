@@ -233,6 +233,21 @@ export default function Login() {
                     />
                   </div>
                 </div>
+
+                <div className="input-group">
+                  <label htmlFor="register-phone">Phone Number</label>
+                  <div className="login-input-wrap">
+                    <input
+                      id="register-phone"
+                      type="tel"
+                      className="input-field login-input"
+                      placeholder="Your phone number"
+                      value={phone}
+                      onChange={e => setPhone(e.target.value)}
+                      autoComplete="tel"
+                    />
+                  </div>
+                </div>
               </>
             )}
 

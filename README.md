@@ -62,7 +62,7 @@ Import the schema into MySQL. The default database name is `lasustech_library`.
 mysql -u root -p < database/schema.sql
 ```
 
-The project ships without demo seed data. New users should register through the website.
+The project ships without demo seed data. New students register through the website, and the first administrator is created with the bootstrap admin key.
 
 Update the values in `backend/.env` if your MySQL user, password, or host differ from the defaults.
 
@@ -90,8 +90,10 @@ The app runs at `http://localhost:5173` and proxies API requests to the backend.
 
 - Open the login page and switch to **Sign Up**.
 - Create a new student account with your name, email, and password.
+- Staff accounts are created with invite codes from an existing admin.
+- The first administrator uses the **Bootstrap Admin** mode and the bootstrap key from `backend/.env`.
 - After registration, the app signs you in automatically.
-- Admin and librarian accounts can be created later by an administrator through user management.
+- Admin and librarian accounts can be created later by an administrator through user management or invite links.
 
 ## Available Features
 
@@ -131,6 +133,8 @@ The backend routes are organized by feature and exposed under `/api`:
 
 - `POST /api/auth/login` - authenticate a user
 - `POST /api/auth/register` - create a student account
+- `POST /api/auth/bootstrap-admin` - create the first admin account with the bootstrap key
+- `POST /api/auth/invite` - create a staff invite code
 - `GET /api/auth/me` - fetch the current authenticated user
 - `GET /api/books` - list books with pagination and filters
 - `GET /api/books/search` - search books by query string
