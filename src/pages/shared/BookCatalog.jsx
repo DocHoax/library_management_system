@@ -16,8 +16,11 @@ export default function BookCatalog() {
   const [availableOnly, setAvailableOnly] = useState(false);
   const [pagination, setPagination] = useState({ page: 1, total: 0, total_pages: 1 });
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [createLoading, setCreateLoading] = useState(false);
+  const [categoryLoading, setCategoryLoading] = useState(false);
   const [createError, setCreateError] = useState('');
+  const [categoryError, setCategoryError] = useState('');
   const [createForm, setCreateForm] = useState({
     title: '',
     author: '',
@@ -33,6 +36,11 @@ export default function BookCatalog() {
     total_copies: '1',
     pages: '',
     language: 'English',
+  });
+  const [categoryForm, setCategoryForm] = useState({
+    name: '',
+    description: '',
+    icon: 'book-open',
   });
 
   const fetchBooks = async (page = 1) => {
@@ -76,6 +84,11 @@ export default function BookCatalog() {
     setShowAddModal(true);
   };
 
+  const handleOpenCategoryModal = () => {
+    setCategoryError('');
+    setShowCategoryModal(true);
+  };
+
   const handleCloseAddBook = () => {
     setShowAddModal(false);
     setCreateError('');
@@ -95,6 +108,12 @@ export default function BookCatalog() {
       pages: '',
       language: 'English',
     });
+  };
+
+  const handleCloseCategoryModal = () => {
+    setShowCategoryModal(false);
+    setCategoryError('');
+    setCategoryForm({ name: '', description: '', icon: 'book-open' });
   };
 
   const handleCreateBook = async (e) => {
@@ -134,6 +153,28 @@ export default function BookCatalog() {
     reader.readAsDataURL(file);
   };
 
+  const handleCreateCategory = async (e) => {
+    e.preventDefault();
+    setCategoryLoading(true);
+    setCategoryError('');
+
+    try {
+      await categoriesApi.create({
+        name: categoryForm.name,
+        description: categoryForm.description,
+        icon: categoryForm.icon,
+      });
+
+      const data = await categoriesApi.list();
+      setCategories(data.categories || []);
+      handleCloseCategoryModal();
+    } catch (err) {
+      setCategoryError(err.message || 'Unable to add category');
+    } finally {
+      setCategoryLoading(false);
+    }
+  };
+
   const basePath = `/${user?.role}`;
   const canAddBooks = user?.role === 'admin';
 
@@ -147,9 +188,14 @@ export default function BookCatalog() {
             <p>Discover and explore our collection of {pagination.total.toLocaleString()} books</p>
           </div>
           {canAddBooks && (
-            <button type="button" className="btn btn--primary" onClick={handleOpenAddBook}>
-              <Plus size={18} /> Add Book
-            </button>
+            <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
+              <button type="button" className="btn btn--ghost" onClick={handleOpenCategoryModal}>
+                <Plus size={18} /> Add Category
+              </button>
+              <button type="button" className="btn btn--primary" onClick={handleOpenAddBook}>
+                <Plus size={18} /> Add Book
+              </button>
+            </div>
           )}
         </div>
         <form className="catalog-search" onSubmit={handleSearch}>
@@ -263,6 +309,49 @@ export default function BookCatalog() {
                 <button type="button" className="btn btn--ghost" onClick={handleCloseAddBook}>Cancel</button>
                 <button type="submit" className="btn btn--primary" disabled={createLoading}>
                   {createLoading ? 'Saving...' : 'Create Book'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showCategoryModal && canAddBooks && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 320, padding: 'var(--space-4)' }} onClick={handleCloseCategoryModal}>
+          <div className="card animate-fade-in-up" style={{ maxWidth: 520, width: '100%' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
+              <div>
+                <h3 style={{ marginBottom: 'var(--space-2)' }}>Add Category</h3>
+                <p style={{ margin: 0, color: 'var(--on-surface-variant)' }}>Create a category so books can be assigned to it.</p>
+              </div>
+              <button type="button" className="btn btn--ghost btn--sm" onClick={handleCloseCategoryModal}>
+                <X size={18} />
+              </button>
+            </div>
+
+            {categoryError && (
+              <div className="login-error" style={{ marginBottom: 'var(--space-4)' }}>
+                <span>{categoryError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleCreateCategory} style={{ display: 'grid', gap: 'var(--space-4)' }}>
+              <div className="input-group">
+                <label>Name *</label>
+                <input className="input-field" required value={categoryForm.name} onChange={e => setCategoryForm({ ...categoryForm, name: e.target.value })} />
+              </div>
+              <div className="input-group">
+                <label>Description</label>
+                <textarea className="input-field" rows="3" value={categoryForm.description} onChange={e => setCategoryForm({ ...categoryForm, description: e.target.value })} />
+              </div>
+              <div className="input-group">
+                <label>Icon</label>
+                <input className="input-field" value={categoryForm.icon} onChange={e => setCategoryForm({ ...categoryForm, icon: e.target.value })} />
+              </div>
+              <div style={{ display: 'flex', gap: 'var(--space-3)', justifyContent: 'flex-end' }}>
+                <button type="button" className="btn btn--ghost" onClick={handleCloseCategoryModal}>Cancel</button>
+                <button type="submit" className="btn btn--primary" disabled={categoryLoading}>
+                  {categoryLoading ? 'Saving...' : 'Create Category'}
                 </button>
               </div>
             </form>
