@@ -9,6 +9,7 @@ $input = json_decode(file_get_contents('php://input'), true) ?? [];
 match ($action) {
     'login' => handleLogin($db, $input),
     'register' => handleRegister($db, $input),
+    'bootstrap-status' => handleBootstrapStatus($db),
     'bootstrap-admin' => handleBootstrapAdmin($db, $input),
     'invite' => handleCreateInvite($db, $input),
     'invites' => handleInvites($db, $input),
@@ -118,6 +119,21 @@ function handleRegister(PDO $db, array $input): void {
             'department' => $department,
         ],
     ], 201);
+}
+
+function handleBootstrapStatus(PDO $db): void {
+    $stmt = $db->prepare("SELECT COUNT(*) FROM users WHERE role = 'admin'");
+    $stmt->execute();
+
+    $adminCount = (int)$stmt->fetchColumn();
+
+    jsonResponse([
+        'available' => $adminCount === 0,
+        'admin_count' => $adminCount,
+        'message' => $adminCount === 0
+            ? 'Bootstrap admin is available'
+            : 'An administrator already exists. Use sign in instead.',
+    ]);
 }
 
 function handleBootstrapAdmin(PDO $db, array $input): void {

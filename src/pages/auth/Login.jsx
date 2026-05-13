@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { booksApi, categoriesApi } from '../../services/api';
+import { authApi, booksApi, categoriesApi } from '../../services/api';
 import { Library, Mail, Lock, Eye, EyeOff, ArrowRight, UserPlus, ShieldCheck, KeyRound, Ticket } from 'lucide-react';
 import './Login.css';
 
@@ -14,6 +14,7 @@ export default function Login() {
   const [phone, setPhone] = useState('');
   const [inviteCode, setInviteCode] = useState('');
   const [bootstrapKey, setBootstrapKey] = useState('');
+  const [bootstrapAvailable, setBootstrapAvailable] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [mode, setMode] = useState('login');
   const [error, setError] = useState('');
@@ -61,12 +62,19 @@ export default function Login() {
     let isMounted = true;
 
     Promise.all([
+      authApi.bootstrapStatus(),
       booksApi.list({ per_page: 1 }),
       booksApi.list({ per_page: 1, available: '1' }),
       categoriesApi.list(),
     ])
-      .then(([booksData, availableData, categoriesData]) => {
+      .then(([bootstrapData, booksData, availableData, categoriesData]) => {
         if (!isMounted) return;
+
+        setBootstrapAvailable(Boolean(bootstrapData.available));
+
+        if (!bootstrapData.available) {
+          setMode('login');
+        }
 
         setHeroStats({
           books: booksData.pagination?.total || 0,
@@ -150,13 +158,15 @@ export default function Login() {
               >
                 <UserPlus size={16} /> Sign Up
               </button>
-              <button
-                type="button"
-                className={`btn btn--sm ${mode === 'bootstrap' ? 'btn--primary' : 'btn--ghost'}`}
-                onClick={() => setMode('bootstrap')}
-              >
-                <ShieldCheck size={16} /> Bootstrap Admin
-              </button>
+              {bootstrapAvailable && (
+                <button
+                  type="button"
+                  className={`btn btn--sm ${mode === 'bootstrap' ? 'btn--primary' : 'btn--ghost'}`}
+                  onClick={() => setMode('bootstrap')}
+                >
+                  <ShieldCheck size={16} /> Bootstrap Admin
+                </button>
+              )}
             </div>
 
           <form className="login-form" onSubmit={handleSubmit} id="login-form">
@@ -371,7 +381,9 @@ export default function Login() {
 
           <p className="login-mode-hint">
             {mode === 'login'
-              ? 'Need an account? Switch to Sign Up to register as a student, or use Bootstrap Admin for the first administrator.'
+              ? bootstrapAvailable
+                ? 'Need an account? Switch to Sign Up to register as a student, or use Bootstrap Admin for the first administrator.'
+                : 'Need an account? Switch to Sign Up to register as a student.'
               : mode === 'register'
                 ? 'Already have an account? Switch back to Sign In.'
                 : 'Use the bootstrap key only once, before the first admin exists.'}
