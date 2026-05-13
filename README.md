@@ -212,6 +212,53 @@ The backend routes are organized by feature and exposed under `/api`:
 - If signup fails, verify that the users table exists and that the backend is connected to the correct MySQL database.
 - If the backend returns a database error, check the MySQL credentials in `backend/config/database.php`.
 
+## Render Deployment
+
+Deploy this project as two Render services and one external MySQL database.
+
+### Backend service
+
+Use the Dockerfile in `backend/Dockerfile` for a PHP web service.
+
+Set these environment variables on the backend service:
+
+- `DB_HOST`
+- `DB_NAME`
+- `DB_USER`
+- `DB_PASS`
+- `JWT_SECRET`
+- `BOOTSTRAP_ADMIN_KEY`
+- `ALLOWED_ORIGIN`
+
+Set `ALLOWED_ORIGIN` to the exact frontend URL Render gives your static site.
+
+### Frontend service
+
+Deploy the React app as a Render static site.
+
+Set `VITE_API_BASE_URL` to the backend URL ending in `/api`.
+
+Build command:
+
+```bash
+npm ci && npm run build
+```
+
+Publish directory:
+
+```bash
+dist
+```
+
+### Database
+
+Create a MySQL database with any external provider and import `database/schema.sql`.
+
+### Notes
+
+- `public/_redirects` keeps React Router working on refresh.
+- The frontend API client now reads `VITE_API_BASE_URL` in production and falls back to localhost for development.
+
 ## License
 
 No license has been specified for this project.
