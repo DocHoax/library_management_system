@@ -63,9 +63,13 @@ export default function DashboardLayout() {
                 `sidebar__link ${isActive ? 'sidebar__link--active' : ''}`
               }
             >
-              <item.icon size={20} />
-              <span>{item.label}</span>
-              {({ isActive }) => isActive && <ChevronRight size={16} className="sidebar__link-arrow" />}
+              {({ isActive }) => (
+                <>
+                  <item.icon size={20} />
+                  <span>{item.label}</span>
+                  {isActive && <ChevronRight size={16} className="sidebar__link-arrow" />}
+                </>
+              )}
             </NavLink>
           ))}
         </nav>

@@ -79,14 +79,30 @@ export default function BookDetail() {
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
         {/* Header gradient */}
         <div style={{ background: 'var(--primary-gradient)', padding: 'var(--space-10) var(--space-8)', color: 'var(--on-primary)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-3)' }}>
-            <span className={`badge ${book.available_copies > 0 ? 'badge--available' : 'badge--borrowed'}`} style={{ fontSize: 'var(--text-label-lg)' }}>
-              {book.available_copies > 0 ? `${book.available_copies} of ${book.total_copies} available` : 'All copies borrowed'}
-            </span>
-            {book.category_name && <span className="badge badge--returned">{book.category_name}</span>}
+          <div style={{ display: 'flex', gap: 'var(--space-6)', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+            <div style={{ width: 160, height: 220, borderRadius: 'var(--radius-xl)', overflow: 'hidden', background: 'rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              {book.cover_image ? (
+                <img
+                  src={book.cover_image}
+                  alt={book.title}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              ) : (
+                <BookOpen size={42} style={{ color: 'rgba(255,255,255,0.85)' }} />
+              )}
+            </div>
+
+            <div style={{ flex: 1, minWidth: 260 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-3)', flexWrap: 'wrap' }}>
+                <span className={`badge ${book.available_copies > 0 ? 'badge--available' : 'badge--borrowed'}`} style={{ fontSize: 'var(--text-label-lg)' }}>
+                  {book.available_copies > 0 ? `${book.available_copies} of ${book.total_copies} available` : 'All copies borrowed'}
+                </span>
+                {book.category_name && <span className="badge badge--returned">{book.category_name}</span>}
+              </div>
+              <h1 style={{ fontSize: 'var(--text-headline-lg)', color: 'var(--on-primary)', marginBottom: 'var(--space-2)' }}>{book.title}</h1>
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 'var(--text-title-sm)' }}>{book.author}</p>
+            </div>
           </div>
-          <h1 style={{ fontSize: 'var(--text-headline-lg)', color: 'var(--on-primary)', marginBottom: 'var(--space-2)' }}>{book.title}</h1>
-          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 'var(--text-title-sm)' }}>{book.author}</p>
         </div>
 
         {/* Content */}

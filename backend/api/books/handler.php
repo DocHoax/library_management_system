@@ -141,6 +141,21 @@ function createBook(PDO $db, array $input): void {
         }
     }
 
+    $categoryId = null;
+    if (array_key_exists('category_id', $input) && $input['category_id'] !== '' && $input['category_id'] !== null) {
+        if (!is_numeric($input['category_id'])) {
+            errorResponse('Valid category is required');
+        }
+
+        $stmt = $db->prepare('SELECT id FROM categories WHERE id = ?');
+        $stmt->execute([(int)$input['category_id']]);
+        if (!$stmt->fetch()) {
+            errorResponse('Category not found', 404);
+        }
+
+        $categoryId = (int)$input['category_id'];
+    }
+
     $stmt = $db->prepare("
         INSERT INTO books (title, author, isbn, publisher, edition, publish_year, category_id, department, description, cover_image, call_number, total_copies, available_copies, pages, language) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -155,7 +170,7 @@ function createBook(PDO $db, array $input): void {
         trim($input['publisher'] ?? '') ?: null,
         trim($input['edition'] ?? '') ?: null,
         $input['publish_year'] ?? null,
-        $input['category_id'] ?? null,
+        $categoryId,
         trim($input['department'] ?? '') ?: null,
         trim($input['description'] ?? '') ?: null,
         trim($input['cover_image'] ?? '') ?: null,
