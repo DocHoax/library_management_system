@@ -6,9 +6,20 @@
 
 require_once __DIR__ . '/config/database.php';
 
+function resolveCorsOrigin(): string {
+    $requestOrigin = $_SERVER['HTTP_ORIGIN'] ?? '';
+
+    if ($requestOrigin !== '' && in_array($requestOrigin, ALLOWED_ORIGINS, true)) {
+        return $requestOrigin;
+    }
+
+    return ALLOWED_ORIGINS[0] ?? 'http://localhost:5173';
+}
+
 // CORS Headers
 header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: ' . ALLOWED_ORIGIN);
+header('Access-Control-Allow-Origin: ' . resolveCorsOrigin());
+header('Vary: Origin');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Access-Control-Allow-Credentials: true');

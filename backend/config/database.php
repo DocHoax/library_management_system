@@ -71,7 +71,10 @@ define('LOAN_PERIOD_DAYS', (int)envValue('LOAN_PERIOD_DAYS', 14));
 define('FINE_RATE_PER_DAY', (float)envValue('FINE_RATE_PER_DAY', 100.00)); // ₦100/day
 
 // CORS Settings
-define('ALLOWED_ORIGIN', envValue('ALLOWED_ORIGIN', 'http://localhost:5173'));
+define('ALLOWED_ORIGINS', array_values(array_filter(array_map(
+    'trim',
+    explode(',', (string)envValue('ALLOWED_ORIGIN', 'http://localhost:5173,http://127.0.0.1:5173'))
+))));
 
 class Database {
     private static ?PDO $connection = null;
