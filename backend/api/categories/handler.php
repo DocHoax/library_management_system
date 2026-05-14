@@ -10,6 +10,7 @@ match (true) {
     $method === 'GET' && $action === '' => listCategories($db),
     $method === 'GET' && is_numeric($action) => getCategory($db, (int)$action),
     $method === 'POST' && $action === '' => createCategory($db, $input),
+    $method === 'PUT' && is_numeric($action) => updateCategory($db, (int)$action, $input),
     default => errorResponse('Categories endpoint not found', 404),
 };
 
@@ -48,4 +49,27 @@ function createCategory(PDO $db, array $input): void {
     $stmt->execute([$name, $input['description'] ?? null, $input['icon'] ?? null]);
 
     successResponse('Category created', ['id' => $db->lastInsertId()], 201);
+}
+
+function updateCategory(PDO $db, int $id, array $input): void {
+    requireAuth(['admin']);
+
+    $stmt = $db->prepare('SELECT id FROM categories WHERE id = ?');
+    $stmt->execute([$id]);
+    if (!$stmt->fetch()) {
+        errorResponse('Category not found', 404);
+    }
+
+    $name = trim($input['name'] ?? '');
+    $description = array_key_exists('description', $input) ? trim($input['description'] ?? '') : null;
+    $icon = array_key_exists('icon', $input) ? trim($input['icon'] ?? '') : null;
+
+    if (!$name) {
+        errorResponse('Category name is required');
+    }
+
+    $stmt = $db->prepare('UPDATE categories SET name = ?, description = ?, icon = ? WHERE id = ?');
+    $stmt->execute([$name, $description ?: null, $icon ?: null, $id]);
+
+    successResponse('Category updated', ['id' => $id]);
 }

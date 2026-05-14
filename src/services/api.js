@@ -139,6 +139,7 @@ export const categoriesApi = {
   list: () => ApiService.get('categories'),
   get: (id) => ApiService.get(`categories/${id}`),
   create: (data) => ApiService.post('categories', data),
+  update: (id, data) => ApiService.put(`categories/${id}`, data),
 };
 
 export default ApiService;

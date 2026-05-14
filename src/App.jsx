@@ -8,6 +8,7 @@ import StudentDashboard from './pages/student/StudentDashboard';
 import BookCatalog from './pages/shared/BookCatalog';
 import BookDetail from './pages/shared/BookDetail';
 import UserManagement from './pages/admin/UserManagement';
+import CategoryManagement from './pages/admin/CategoryManagement';
 import TransactionHistory from './pages/shared/TransactionHistory';
 import Reports from './pages/admin/Reports';
 import './index.css';
@@ -55,6 +56,7 @@ export default function App() {
             <Route index element={<AdminDashboard />} />
             <Route path="catalog" element={<BookCatalog />} />
             <Route path="catalog/:id" element={<BookDetail />} />
+            <Route path="categories" element={<CategoryManagement />} />
             <Route path="users" element={<UserManagement />} />
             <Route path="transactions" element={<TransactionHistory />} />
             <Route path="reports" element={<Reports />} />

@@ -10,6 +10,7 @@ const NAV_ITEMS = {
   admin: [
     { path: '/admin', icon: LayoutDashboard, label: 'Dashboard', exact: true },
     { path: '/admin/catalog', icon: BookOpen, label: 'Book Catalog' },
+    { path: '/admin/categories', icon: Settings, label: 'Categories' },
     { path: '/admin/users', icon: Users, label: 'Users' },
     { path: '/admin/transactions', icon: ArrowLeftRight, label: 'Transactions' },
     { path: '/admin/reports', icon: BarChart3, label: 'Reports' },
