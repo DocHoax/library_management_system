@@ -259,6 +259,71 @@ Create a MySQL database with any external provider and import `database/schema.s
 - `public/_redirects` keeps React Router working on refresh.
 - The frontend API client now reads `VITE_API_BASE_URL` in production and falls back to localhost for development.
 
+## Firebase Hosting Setup
+
+If you want the least-effort Firebase setup, use Firebase Hosting only for the frontend and keep the existing backend on Render for now.
+
+### 1. Install the Firebase CLI
+
+```bash
+npm install -g firebase-tools
+```
+
+### 2. Log in and initialize hosting
+
+```bash
+firebase login
+firebase init hosting
+```
+
+When prompted:
+
+- Choose the existing Firebase project.
+- Set the public directory to `dist`.
+- Configure as a single-page app: `Yes`.
+- Do not overwrite `index.html`.
+
+### 3. Build and deploy
+
+```bash
+npm install
+npm run build
+firebase deploy
+```
+
+### 4. Set the API URL
+
+Before building for Firebase, set `VITE_API_BASE_URL` to your backend API URL so the frontend does not call localhost in production.
+
+## Firebase Backend Rewrite
+
+The backend is now also available as a Firebase Cloud Functions API backed by Firestore.
+
+### Backend shape
+
+- Firestore collections replace the old MySQL tables.
+- A single HTTPS function named `api` serves the existing `/api/...` routes.
+- JWT login is preserved so the frontend auth flow does not need a rewrite.
+
+### Collections used
+
+- `users`
+- `categories`
+- `books`
+- `transactions`
+- `fines`
+- `reservations`
+- `invites`
+- `activity_log`
+
+### Setup
+
+Install the function dependencies from the `functions/` folder, then deploy with Firebase Hosting and Functions together.
+
+### Important note
+
+This keeps the frontend API contract intact, but Firestore is a different datastore than MySQL, so existing MySQL data must be migrated separately if you want to preserve records.
+
 ## License
 
 No license has been specified for this project.

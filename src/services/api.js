@@ -2,7 +2,7 @@
  * LASUSTECH LMS — API Service Layer
  */
 
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api').replace(/\/$/, '');
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:8000/api')).replace(/\/$/, '');
 
 class ApiService {
   static token = localStorage.getItem('lms_token');
