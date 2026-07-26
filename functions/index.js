@@ -149,17 +149,20 @@ async function requireAuth(req, res, allowedRoles = []) {
     return null;
   }
 
-  if (user.status !== 'active') {
+  const { password_hash, ...safeUser } = user;
+  const authenticatedUser = safeUser;
+
+  if (authenticatedUser.status !== 'active') {
     jsonError(res, 'Account is suspended or inactive', 403);
     return null;
   }
 
-  if (allowedRoles.length && !allowedRoles.includes(user.role)) {
+  if (allowedRoles.length && !allowedRoles.includes(authenticatedUser.role)) {
     jsonError(res, 'Insufficient permissions', 403);
     return null;
   }
 
-  return user;
+  return authenticatedUser;
 }
 
 function daysOverdueFromDueDate(dueDateIso) {
@@ -225,6 +228,47 @@ async function loadLookups() {
     categoriesById: new Map(categories.map((item) => [String(item.id), item])),
     transactionsById: new Map(transactions.map((item) => [String(item.id), item])),
   };
+}
+
+async function sendBooksResponse(req, res, searchTerm = '') {
+  const page = Math.max(1, Number(req.query.page || 1));
+  const perPage = Math.min(50, Math.max(1, Number(req.query.per_page || 12)));
+  const categoryId = req.query.category_id ? String(req.query.category_id) : '';
+  const department = req.query.department ? String(req.query.department) : '';
+  const available = String(req.query.available || '');
+  const normalizedSearch = String(searchTerm || '').trim().toLowerCase();
+
+  const [books, categories] = await Promise.all([loadCollection('books'), loadCollection('categories')]);
+  const categoriesById = new Map(categories.map((category) => [String(category.id), category]));
+
+  let filtered = books.filter((book) => book.status === 'active');
+  if (categoryId) filtered = filtered.filter((book) => String(book.category_id) === categoryId);
+  if (department) filtered = filtered.filter((book) => String(book.department || '') === department);
+  if (available !== '') {
+    filtered = filtered.filter((book) => (available === '1' || available === 'true') ? Number(book.available_copies || 0) > 0 : Number(book.available_copies || 0) === 0);
+  }
+
+  if (normalizedSearch) {
+    filtered = filtered
+      .map((book) => {
+        const haystack = [book.title, book.author, book.description, book.isbn, book.call_number].filter(Boolean).join(' ').toLowerCase();
+        const score = haystack.includes(normalizedSearch) ? 1 + haystack.split(normalizedSearch).length : 0;
+        return { book, score };
+      })
+      .filter((item) => item.score > 0)
+      .sort((a, b) => b.score - a.score || String(a.book.title || '').localeCompare(String(b.book.title || '')))
+      .map((item) => item.book);
+  } else {
+    filtered = filtered.sort((a, b) => String(a.title || '').localeCompare(String(b.title || '')));
+  }
+
+  const mapped = [];
+  for (const book of filtered) {
+    mapped.push(await buildBookRecord(book, categoriesById));
+  }
+
+  const total = mapped.length;
+  return paginated(res, mapped.slice((page - 1) * perPage, (page - 1) * perPage + perPage), total, page, perPage);
 }
 
 async function findUserByEmail(email) {
@@ -465,59 +509,11 @@ router.get('/auth/me', async (req, res) => {
 });
 
 router.get('/books', async (req, res) => {
-  const page = Math.max(1, Number(req.query.page || 1));
-  const perPage = Math.min(50, Math.max(1, Number(req.query.per_page || 12)));
-  const categoryId = req.query.category_id ? String(req.query.category_id) : '';
-  const department = req.query.department ? String(req.query.department) : '';
-  const available = String(req.query.available || '');
-  const query = '';
-
-  const [books, categories] = await Promise.all([loadCollection('books'), loadCollection('categories')]);
-  const categoriesById = new Map(categories.map((category) => [String(category.id), category]));
-
-  let filtered = books.filter((book) => book.status === 'active');
-  if (categoryId) filtered = filtered.filter((book) => String(book.category_id) === categoryId);
-  if (department) filtered = filtered.filter((book) => String(book.department || '') === department);
-  if (available !== '') filtered = filtered.filter((book) => (available === '1' || available === 'true') ? Number(book.available_copies || 0) > 0 : Number(book.available_copies || 0) === 0);
-
-  filtered = filtered.sort((a, b) => String(a.title || '').localeCompare(String(b.title || '')));
-  const withCategories = [];
-  for (const book of filtered) {
-    withCategories.push(await buildBookRecord(book, categoriesById));
-  }
-
-  const total = withCategories.length;
-  return paginated(res, withCategories.slice((page - 1) * perPage, (page - 1) * perPage + perPage), total, page, perPage);
+  return sendBooksResponse(req, res);
 });
 
 router.get('/books/search', async (req, res) => {
-  const q = String(req.query.q || '').trim().toLowerCase();
-  if (!q) {
-    return router.handle(req, res, () => {});
-  }
-
-  const page = Math.max(1, Number(req.query.page || 1));
-  const perPage = Math.min(50, Math.max(1, Number(req.query.per_page || 12)));
-  const [books, categories] = await Promise.all([loadCollection('books'), loadCollection('categories')]);
-  const categoriesById = new Map(categories.map((category) => [String(category.id), category]));
-
-  const scored = books
-    .filter((book) => book.status === 'active')
-    .map((book) => {
-      const haystack = [book.title, book.author, book.description, book.isbn, book.call_number].filter(Boolean).join(' ').toLowerCase();
-      const score = haystack.includes(q) ? 1 + haystack.split(q).length : 0;
-      return { book, score };
-    })
-    .filter((item) => item.score > 0)
-    .sort((a, b) => b.score - a.score || String(a.book.title || '').localeCompare(String(b.book.title || '')));
-
-  const mapped = [];
-  for (const item of scored) {
-    mapped.push(await buildBookRecord(item.book, categoriesById));
-  }
-
-  const total = mapped.length;
-  return paginated(res, mapped.slice((page - 1) * perPage, (page - 1) * perPage + perPage), total, page, perPage);
+  return sendBooksResponse(req, res, req.query.q || '');
 });
 
 router.get('/books/:id', async (req, res) => {
@@ -755,7 +751,7 @@ router.post('/transactions/return', async (req, res) => {
   const transactionId = Number(req.body?.transaction_id || 0);
   if (!transactionId) return jsonError(res, 'Transaction ID is required');
 
-  const [transaction, book] = await Promise.all([getRecord('transactions', transactionId), getRecord('books', (await getRecord('transactions', transactionId))?.book_id)]);
+  const transaction = await getRecord('transactions', transactionId);
   if (!transaction || !['checked_out', 'overdue'].includes(transactionStatus(transaction))) return jsonError(res, 'Active transaction not found', 404);
 
   const txnBook = await getRecord('books', transaction.book_id);

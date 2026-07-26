@@ -316,7 +316,7 @@ The backend is now also available as a Firebase Cloud Functions API backed by Fi
 - `invites`
 - `activity_log`
 
-### Setup
+### Firebase Setup
 
 Install the function dependencies from the `functions/` folder, then deploy with Firebase Hosting and Functions together.
 
